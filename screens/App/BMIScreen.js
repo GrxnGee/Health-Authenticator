@@ -58,8 +58,13 @@ export default function AssetExample() {
         } else {
             bmr = 665 + (9.6 * weight) + (1.8 * parsedHeight) - (4.7 * userInfo.old);
         }
+if(parseFloat(activityLevel) == 0){
+    Alert.alert('Please Select Activity');
+    return;
+}
+    const tdee = bmr * parseFloat(activityLevel);
 
-        const tdee = bmr * parseFloat(activityLevel);
+
 
         console.log('BMI : ', bmi.toFixed(2));
         console.log('BMR : ', bmr.toFixed(2));
@@ -76,8 +81,9 @@ export default function AssetExample() {
             console.error("Error updating user data: ", error);
         }
     };
-    
+
     const activityOptions = [
+        { label: 'SELECT ACTIVITY', value: '0' },
         { label: 'Little to no exercise', value: '1.2' },
         { label: 'Light exercise', value: '1.375' },
         { label: 'Moderate exercise', value: '1.55' },
@@ -87,48 +93,50 @@ export default function AssetExample() {
 
     return (
         <View>
-        <SafeAreaView>
-            <View style={{ marginTop: Constants.statusBarHeight }}>
-                <Text style={styles.bmiText}>BMI</Text>
-                <Card style={styles.card}>
-                    <TextInput
-                        placeholder="Height(cm)"
-                        style={styles.textBox}
-                        keyboardType="numeric"
-                        value={height}
-                        onChangeText={setHeight}
-                    />
-                </Card>
+            <SafeAreaView>
+                <View style={{ marginTop: Constants.statusBarHeight }}>
+                    <Text style={styles.bmiText}>BMI</Text>
+                    <Card style={styles.card}>
+                        <TextInput
+                            placeholder="Height"
+                            style={styles.textBox}
+                            keyboardType="numeric"
+                            value={height}  
+                            onChangeText={setHeight}
+                        />
+                         <Text style={{textAlign:'center', marginLeft:'32%', fontWeight:'bold'}}>CM</Text>
+                    </Card>
 
-                <Card style={styles.card}>
-                    <TextInput
-                        placeholder="Weight(kg)"
-                        style={styles.textBox}
-                        keyboardType="numeric"
-                        value={weight}
-                        onChangeText={setWeight}
-                    />
-                </Card>
-            </View>
+                    <Card style={styles.card}>
+                        <TextInput
+                            placeholder="Weight"
+                            style={styles.textBox}
+                            keyboardType="numeric"
+                            value={weight}
+                            onChangeText={setWeight}
+                        />
+                        <Text style={{textAlign:'center', marginLeft:'32%', fontWeight:'bold'}}>KG</Text>
+                    </Card>
+                </View>
 
-                <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'white', flex: 3, marginTop: 14, marginLeft: '10%'}}>SELECT ACTIVITY</Text>
-                <Picker
-                    selectedValue={activityLevel}
-                    onValueChange={(itemValue) => setActivityLevel(itemValue)}
-                    style={{flex: 2}}
-                >
-                    {activityOptions.map((option) => (
-                        <Picker.Item key={option.value} label={option.label} value={option.value} />
-                    ))}
-                </Picker>
+                <View style={styles.pickerView}>
+                    <Picker
+                        selectedValue={activityLevel}
+                        onValueChange={(itemValue) => setActivityLevel(itemValue)}
+                        style={{ backgroundColor: '#4A9B5D', justifyContent:'center', marginLeft: 40, paddingTop:25}}
+                    >
+                        {activityOptions.map((option) => (
+                            <Picker.Item key={option.value} label={option.label} value={option.value} />
+                        ))}
+                    </Picker>
+                </View>
 
-
-            <View>
-                <TouchableOpacity style={styles.button} onPress={calculateBMIBMR}>
-                    <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'white' }}>Calculate</Text>
-                </TouchableOpacity>
-            </View>
-        </SafeAreaView>
+                <View style={{marginTop: '45%'}}>
+                    <TouchableOpacity style={styles.button} onPress={calculateBMIBMR}>
+                        <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'white' }}>Calculate</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
         </View>
     );
 }
@@ -146,7 +154,7 @@ const styles = StyleSheet.create({
         marginLeft: 45,
     },
     card: {
-        height: '30%',
+        height: 145,
         marginTop: '5%',
         marginLeft: 40,
         marginRight: 40,
@@ -157,7 +165,9 @@ const styles = StyleSheet.create({
     },
     textBox: {
         fontWeight: 'bold',
-        fontSize: 18,
+        fontSize: 35,
+        textAlign:'center',
+        marginLeft:'32%'
     },
     button: {
         height: 50,
@@ -168,21 +178,20 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 20,
     },
-    pickerView :{
-        marginTop: '5%',
+    pickerView: {
         borderRadius: 10,
         borderWidth: 1,
         borderColor: '#bdc3c7',
         overflow: 'hidden',
         height: 50,
-        marginTop: 20,
         marginLeft: 40,
         marginRight: 40,
-        backgroundColor:'#4A9B5D',
-        justifyContent :'center',
-        flexDirection:'row',
+        backgroundColor: '#4A9B5D',
+        justifyContent: 'center',
+        marginTop:'5%'
+  
     },
-    picker:{
+    picker: {
         marginTop: '5%',
         borderRadius: 10,
         borderWidth: 1,
@@ -192,7 +201,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginLeft: 40,
         marginRight: 40,
-        backgroundColor:'#4A9B5D',
-        justifyContent :'center',
+        backgroundColor: '#4A9B5D',
+        justifyContent: 'center',
     }
 });

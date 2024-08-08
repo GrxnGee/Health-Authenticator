@@ -48,7 +48,7 @@ import React, { useState, useEffect } from 'react';
                                      <View style={styles.barRed} />
                                  </View>
                                  <TouchableOpacity style={styles.button}>
-                                     <Text style={styles.buttonText}>Start Calculate</Text>
+                                     <Text style={styles.buttonText} >Start Calculate</Text>
                                  </TouchableOpacity>
                              </Card>
                          </View>
