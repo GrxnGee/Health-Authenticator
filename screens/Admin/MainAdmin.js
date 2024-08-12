@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons'; 
 import AdminFood from './AdminFood.js';
 import AdminEx from './AdminEx.js';
+import AdminProfile from './AdminProfile.js';
 
 
 const Tab = createBottomTabNavigator();
@@ -25,11 +26,14 @@ function MyTabs() {
 
           switch (route.name) {
             case 'Food':
-              iconName = 'settings';
+              iconName = 'wine';
               break;
             case 'Ex':
-              iconName = 'person';
+              iconName = 'barbell';
               break;
+              case 'Profile':
+                iconName = 'person';
+                break;
           }
 
           return <Icon name={iconName} size={size} color={color} />;
@@ -44,6 +48,7 @@ function MyTabs() {
     >
       <Tab.Screen name="Food" component={AdminFood} />
       <Tab.Screen name="Ex" component={AdminEx} />
+      <Tab.Screen name="Profile" component={AdminProfile} />
     </Tab.Navigator>
   );
 }

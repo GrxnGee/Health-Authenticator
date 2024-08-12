@@ -18,7 +18,7 @@ function MyTabs() {
 
 <Tab.Screen name="Home" component={HomeScreen}
         options={{
-          tabBarButton: () => null, // Hide the Home tab
+          tabBarButton: () => null,
         }}
       />
       

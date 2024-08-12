@@ -1,35 +1,183 @@
-import { Text, View, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import { Text, View, StyleSheet, TextInput, Alert, TouchableOpacity, SafeAreaView, StatusBar } from 'react-native';
+import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { app } from '../../Firebase';
+import { Picker } from '@react-native-picker/picker'; 
 
+const db = getFirestore(app);
+const auth = getAuth(app);
 
- export default function AssetExample() {
-   return (
-     <View style={styles.container}>
+const AdminExercise = ({ navigation }) => {
+  const [Exname, setExname] = useState('');
+  const [IEx, setIEx] = useState('');
+  const [cat, setCat] = useState('');
+  const [picUrl, setpicUrl] = useState('');
+  const [showPicker, setShowPicker] = useState(false);
 
+  const clearFields = () => {
+    setpicUrl('');
+    setExname('');
+    setIEx('');
+    setCat('');
+  };
 
-     </View>
-   );
- }
+  const validateFields = () => {
+    return Exname && IEx && cat && picUrl;
+  };
 
+  const addDataToFirestore = async () => {
+    if (!validateFields()) {
+      Alert.alert("Error", "All fields are required!");
+      return;
+    }
 
+    try {
+      const docRef = await addDoc(collection(db, "exercise"), {
+        picUrl: picUrl,
+        Exname: Exname,
+        IEx: IEx,
+        cat: cat,
+      });
+      console.log("Document written with ID: ", docRef.id);
+      Alert.alert("Success", `Document successfully created with ID: ${docRef.id}`);
+      clearFields();
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      Alert.alert("Error", "Error adding document: " + e.message);
+    }
+  };
 
- const styles = StyleSheet.create({
-   container: {
-     backgroundColor: 'pink',
-     alignItems: 'center',
-     justifyContent: 'center',
-     padding: 24,
-     flex: 1,
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>Add a New Exercise</Text>
+      </View>
 
-   },
-   paragraph: {
-     margin: 24,
-     marginTop: 0,
-     fontSize: 14,
-     fontWeight: 'bold',
-     textAlign: 'center',
-   },
-   logo: {
-     height: 128,
-     width: 128,
-   }
- });
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          onChangeText={setpicUrl}
+          value={picUrl}
+          placeholder="Enter Picture Url"
+          placeholderTextColor="#aaa"
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={setExname}
+          value={Exname}
+          placeholder="Enter Exercise Name"
+          placeholderTextColor="#aaa"
+        />
+        <TextInput
+          style={[styles.input, { height: 100 }]}
+          onChangeText={setIEx}
+          value={IEx}
+          placeholder="Enter Exercise Information"
+          placeholderTextColor="#aaa"
+          multiline={true}
+          textAlignVertical="top"
+        />
+        
+        <View style={styles.pickerWrapper}>
+          <TouchableOpacity onPress={() => setShowPicker(!showPicker)}>
+            <Text style={[styles.pickerText, cat ? styles.selectedPickerText : styles.placeholderText]}>
+              {cat ? cat : "Select Category"}
+            </Text>
+          </TouchableOpacity>
+          {showPicker && (
+            <Picker
+              selectedValue={cat}
+              style={styles.picker}
+              onValueChange={(itemValue) => {
+                setCat(itemValue);
+                setShowPicker(false);
+              }}
+            >
+              <Picker.Item label="Weight Training" value="Weight Training" />
+              <Picker.Item label="Stretching" value="Stretching" />
+              <Picker.Item label="Cardio" value="Cardio" />
+            </Picker>
+          )}
+        </View>
+
+        <TouchableOpacity
+          style={styles.saveButton}
+          onPress={addDataToFirestore}
+        >
+          <Text style={styles.saveButtonText}>Submit</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+    paddingHorizontal: 20,
+    marginTop: StatusBar.currentHeight || 0,
+  },
+  titleContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  inputContainer: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  input: {
+    height: 50,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    backgroundColor: '#fff',
+    width: '90%',
+  },
+  pickerWrapper: {
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    backgroundColor: '#fff',
+    width: '90%',
+  },
+  picker: {
+    height: 150,
+    width: '100%',
+    marginTop: 10,
+  },
+  pickerText: {
+    color: '#333',
+  },
+  selectedPickerText: {
+    color: '#000',
+  },
+  placeholderText: {
+    color: '#aaa',
+  },
+  saveButton: {
+    backgroundColor: '#4caf50',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: '48%',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+});
+
+export default AdminExercise;
