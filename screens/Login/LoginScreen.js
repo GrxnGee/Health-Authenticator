@@ -22,7 +22,7 @@ export default function LoginScreen() {
             if (userDoc.exists()) {
                 const userData = userDoc.data();
                 if (userData.role === 'admin') {
-                    navigation.navigate('Signup');
+                    navigation.navigate('MainAdmin');
                 } else if (userData.role === 'user') {
                     navigation.navigate('Main');
                 }

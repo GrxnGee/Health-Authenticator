@@ -17,7 +17,7 @@ export default function AssetExample() {
                 if (doc.exists()) {
                     setUserInfo(doc.data());
                 } else {
-                    console.สนเ('Error', 'No such document!');
+                    console.error('Error', 'No such document!');
                 }
             }, (error) => {
                 console.error("Error fetching user data: ", error);
@@ -123,7 +123,7 @@ if(parseFloat(activityLevel) == 0){
                     <Picker
                         selectedValue={activityLevel}
                         onValueChange={(itemValue) => setActivityLevel(itemValue)}
-                        style={{ backgroundColor: '#4A9B5D', justifyContent:'center', marginLeft: 40, paddingTop:25}}
+                        style={{ backgroundColor: '#4A9B5D', justifyContent:'center', marginLeft: 15, paddingTop:5}}
                     >
                         {activityOptions.map((option) => (
                             <Picker.Item key={option.value} label={option.label} value={option.value} />

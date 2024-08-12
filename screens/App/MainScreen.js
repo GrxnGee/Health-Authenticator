@@ -15,6 +15,13 @@ function MyTabs() {
       screenOptions={{ headerShown: false }}
       tabBar={(props) => <CustomTabBar {...props} />}
     >
+
+<Tab.Screen name="Home" component={HomeScreen}
+        options={{
+          tabBarButton: () => null, // Hide the Home tab
+        }}
+      />
+      
       <Tab.Screen
         name="BMI"
         component={BMIScreen}
@@ -22,11 +29,7 @@ function MyTabs() {
           tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" color={color} size={size} />,
         }}
       />
-      <Tab.Screen name="Home" component={HomeScreen}
-        options={{
-          tabBarButton: () => null, // Hide the Home tab
-        }}
-      />
+
       <Tab.Screen
         name="Exercise"
         component={Exercise} 
@@ -46,7 +49,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
         const isFocused = state.index === index;
 
         if (route.name === 'Home') {
-          return null; // Skip rendering the Home tab
+          return null; 
         }
 
         const onPress = () => {
