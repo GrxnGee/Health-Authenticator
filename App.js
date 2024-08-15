@@ -9,8 +9,6 @@ import InfoScreen from './screens/Login/InfoScreen';
 import MainScreen from './screens/App/MainScreen';
 import MainAdminScreen from './screens/Admin/MainAdmin';
 
-
-import Exercise from './screens/App/Exercise';
 const Stack = createNativeStackNavigator();
 
 function App() {
@@ -23,7 +21,6 @@ function App() {
         <Stack.Screen name="Info" component={InfoScreen} />
         <Stack.Screen name="Main" component={MainScreen} />
         <Stack.Screen name="MainAdmin" component={MainAdminScreen} />
-        <Stack.Screen name="Exercise" component={Exercise} />
       </Stack.Navigator>
     </NavigationContainer>
   );

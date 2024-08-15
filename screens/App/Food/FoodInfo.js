@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { db, auth } from '../../Firebase';
+import { db, auth } from '../../../Firebase';
 import { Card } from 'react-native-paper';
 import { collection, getDoc, query, where, arrayUnion, doc, setDoc, updateDoc, getDocs } from 'firebase/firestore';
 import { useRoute } from '@react-navigation/native';

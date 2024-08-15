@@ -7,10 +7,10 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import HomeScreen from '../App/HomeScreen';
 import BMIScreen from '../App/BMIScreen';
 import Profile from '../App/Profile';
-import Exercise from '../App/Exercise';
-import FoodInfo from '../App/FoodInfo';
-import MealsPlan from '../App/MealsPlan';
-import Food from '../App/Food';
+import Exercise from './Exercise/Exercise';
+import FoodInfo from './Food/FoodInfo';
+import MealsPlan from './Food/MealsPlan';
+import Food from './Food/Food';
 const Tab = createBottomTabNavigator();
 
 function getTabBarVisibility(route) {
@@ -42,7 +42,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           }
         };
 
-        const iconName = route.name === 'BMI' ? 'calendar-outline' : 'person-outline';
+        const iconName = route.name === 'BMI' ? 'create-outline' : 'person-outline';
 
         return (
           <TouchableOpacity
@@ -82,7 +82,7 @@ function MyTabs() {
         name="BMI"
         component={BMIScreen}
         options={{
-          tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="create-outline" color={color} size={size} />,
         }}
       />
       <Tab.Screen
