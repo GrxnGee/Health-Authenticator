@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Image, ScrollView, TextInput ,TouchableOpacity} from 'react-native';
+import { Text, View, StyleSheet, Image, ScrollView, TextInput ,TouchableOpacity, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { db } from '../../../Firebase';
@@ -77,6 +77,7 @@ export default function Food() {
 
   return (
     <SafeAreaView>
+      <ScrollView>
       <View style={styles.navHeader}>
         <TouchableOpacity
           style={styles.homeButton}
@@ -85,9 +86,18 @@ export default function Food() {
           <Ionicons name="arrow-back" size={24} color="black" />
           <Text style={styles.homeButtonText}>Home</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.MealsButton}
+          onPress={() => navigation.navigate('MealsPlan')}
+        >
+          <Ionicons name="clipboard" size={24} color="#50A966" />
+          <Text style={styles.MealsButtonText}>Your Plan</Text>
+        </TouchableOpacity>
+
       </View>
       <View style={{ marginTop: Constants.statusBarHeight }}>
-        <View style={{ height: 33, marginLeft: 40, marginRight: 40, flexDirection: 'row', alignItems: 'center', backgroundColor: '#397A49', borderRadius: 8, margin:10}}>
+        <View style={{ height: 33, marginLeft: 40, marginRight: 40, flexDirection: 'row', alignItems: 'center', backgroundColor: '#397A49', borderRadius: 8, margin:5}}>
           <Ionicons
             name="search-sharp"
             size={20}
@@ -143,28 +153,24 @@ export default function Food() {
           />
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-  {searchResults.length > 0 ? (
-    searchResults.map((food, index) => (
-      <Card key={food.id} style={styles.item2} onPress={() => pressFoodpic(food.fname)}>
-        <Image source={{ uri: food.picUrl }} style={{ width: 155, height: 135, borderRadius: 8 }} />
-      </Card>
-    ))
-  ) : (
-    foodItems.length > 0 ? (
-      foodItems.map((food, index) => (
-        <Card key={food.id} style={styles.item2} onPress={() => pressFoodpic(food.fname)}>
-          <Image source={{ uri: food.picUrl }} style={{ width: 200, height: 135, borderRadius: 8 }} />
-        </Card>
-      ))
-    ) : (
-      <View style={{ width: '100%', height: 200, justifyContent: 'center', alignItems: 'center' }}>
-        {}
-      </View>
-    )
+        <FlatList
+  data={searchResults.length > 0 ? searchResults : foodItems}
+  keyExtractor={(item) => item.id}
+  renderItem={({ item }) => (
+    <Card key={item.id} style={styles.item2} onPress={() => pressFoodpic(item.fname)}>
+      <Image source={{ uri: item.picUrl }} style={{ width: 155, height: 135, borderRadius: 8 }} />
+    </Card>
   )}
-</ScrollView>
+  numColumns={2}
+  columnWrapperStyle={styles.row}
+  ListEmptyComponent={() => (
+    <View style={{ width: '100%', height: 200, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>No items found</Text>
+    </View>
+  )}
+/>
       </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -213,9 +219,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 4,  // Reduced margin
+    margin: 4, 
     borderRadius: 8,
-    width: '48%',  // Adjusted to fit better
+    width: '48%', 
     
   },
   Category: {
@@ -261,4 +267,16 @@ const styles = StyleSheet.create({
     marginLeft: 8, 
     fontWeight: 'bold',
   },
+  row: {
+    justifyContent: 'space-between',
+  },
+  MealsButton: {
+    alignItems: 'center',
+    padding: 10,
+    marginLeft: '50%' ,
+  },
+  MealsButtonText: {
+    fontSize: 10,
+    marginLeft: 8 
+  }
 });

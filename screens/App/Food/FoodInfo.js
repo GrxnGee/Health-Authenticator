@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db, auth } from '../../../Firebase';
 import { Card } from 'react-native-paper';
 import { collection, getDoc, query, where, arrayUnion, doc, setDoc, updateDoc, getDocs } from 'firebase/firestore';
 import { useRoute } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function FoodDetails() {
     const [foodItems, setFoodItems] = useState([]);
@@ -57,51 +58,61 @@ export default function FoodDetails() {
     const goBack = () => {
         navigation.navigate('Food');
     };
-    
+
     const pressAdd = async (food) => {
         await UpdateMeal(food);
         setTimeout(() => {
             goBack();
         }, 2000);
-      };
+    };
     return (
         <SafeAreaView>
-            {foodItems.map((food) => (
-                <View key={food.id} style={{ alignItems: 'center' }}>
-                    <View style={styles.fname}>
-                        <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'white', textAlign: 'center' }}>{food.fname}</Text>
-                    </View>
-                    <Card style={styles.cardoutside}>
-                        <View style={{ alignItems: 'center' }}>
-                            <Image source={{ uri: food.picUrl }} style={{ width: 200, height: 200, borderRadius: 8, margin: 10 }} />
+            <ScrollView>
+                <TouchableOpacity
+                    style={styles.FoodButton}
+                    onPress={() => navigation.navigate('Food')}
+                >
+                    <Ionicons name="arrow-back" size={24} color="black" />
+                    <Text style={styles.homeButtonText}>Food List</Text>
+                </TouchableOpacity>
 
-                            <Card style={styles.cardinside}>
-                                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#50A966', textAlign: 'center' }}>Ingredient</Text>
-                                <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#453131', textAlign: 'left' }}>{food.ifood}</Text>
-
-                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 10 }}>
-                                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#FFC85C', textAlign: 'center', marginRight: 5 }}>{food.cal}</Text>
-                                    <Text style={{ fontSize: 17, fontWeight: 'bold', color: 'black', textAlign: 'center' }}>Calorie</Text>
-                                </View>
-
-                            </Card>
-                            <View style={{ margin: 20 }}>
-                                <TouchableOpacity style={styles.button} onPress={() => pressAdd(food)}>
-                                    <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'white', fontSize: 17 }}>Add to meal</Text>
-                                </TouchableOpacity>
-                            </View>
+                {foodItems.map((food) => (
+                    <View key={food.id} style={{ alignItems: 'center' }}>
+                        <View style={styles.fname}>
+                            <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'white', textAlign: 'center' }}>{food.fname}</Text>
                         </View>
+                        <Card style={styles.cardoutside}>
+                            <View style={{ alignItems: 'center' }}>
+                                <Image source={{ uri: food.picUrl }} style={{ width: 200, height: 200, borderRadius: 8, margin: 10 }} />
 
-                    </Card>
-                </View>
-            ))}
+                                <Card style={styles.cardinside}>
+                                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#50A966', textAlign: 'center' }}>Ingredient</Text>
+                                    <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#453131', textAlign: 'left' }}>{food.ifood}</Text>
+
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 10 }}>
+                                        <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#FFC85C', textAlign: 'center', marginRight: 5 }}>{food.cal}</Text>
+                                        <Text style={{ fontSize: 17, fontWeight: 'bold', color: 'black', textAlign: 'center' }}>Calorie</Text>
+                                    </View>
+
+                                </Card>
+                                <View style={{ margin: 20 }}>
+                                    <TouchableOpacity style={styles.button} onPress={() => pressAdd(food)}>
+                                        <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'white', fontSize: 17 }}>Add to meal</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+
+                        </Card>
+                    </View>
+                ))}
+            </ScrollView>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     cardoutside: {
-        height: 550,
+        height: 630,
         width: 350,
         backgroundColor: '#FFFFFF',
         padding: 10,
@@ -124,7 +135,7 @@ const styles = StyleSheet.create({
         marginRight: 40,
         borderRadius: 50,
         justifyContent: 'center',
-        marginTop: 20,
+        marginTop: 5,
     },
     fname: {
         justifyContent: 'center',
@@ -134,7 +145,12 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 18,
         width: 151,
         height: 40,
-        marginTop: '25%',
         marginRight: '35%'
     },
+    FoodButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+        marginLeft: 10
+    }
 });
