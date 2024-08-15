@@ -75,7 +75,7 @@ export default function Home() {
                             </View>
                         </Card>
                         <Text style={styles.sectionTitle}>Available plans</Text>
-                        <Card style={styles.circleCard}>
+                        <Card style={styles.circleCard} onPress={() => navigation.navigate('Exercise')}>
                             <Image
                                 source={{ uri: 'https://img1.wsimg.com/isteam/ip/1ee0d8b5-9920-41fc-9085-856fcdd9bb65/iStock-1149241482.jpg' }} // Replace with your image URL or local path
                                 style={styles.cardImage}

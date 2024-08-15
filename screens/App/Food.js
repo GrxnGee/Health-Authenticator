@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Image, ScrollView, TextInput } from 'react-native';
+import { Text, View, StyleSheet, Image, ScrollView, TextInput ,TouchableOpacity} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { db } from '../../Firebase';
@@ -77,6 +77,15 @@ export default function Food() {
 
   return (
     <SafeAreaView>
+      <View style={styles.navHeader}>
+        <TouchableOpacity
+          style={styles.homeButton}
+          onPress={() => navigation.navigate('Home')}
+        >
+          <Ionicons name="arrow-back" size={24} color="black" />
+          <Text style={styles.homeButtonText}>Home</Text>
+        </TouchableOpacity>
+      </View>
       <View style={{ marginTop: Constants.statusBarHeight }}>
         <View style={{ height: 33, marginLeft: 40, marginRight: 40, flexDirection: 'row', alignItems: 'center', backgroundColor: '#397A49', borderRadius: 8, margin:10}}>
           <Ionicons
@@ -95,7 +104,7 @@ export default function Food() {
           />
         </View>
 
-        <ScrollView horizontal={true} style={{margin:20 }}>
+        <ScrollView horizontal={true} style={{margin:15 }}>
           {foodItems.map((food, index) => (
             <Card key={food.id} style={styles.item}>
               <Image source={{ uri: food.picUrl }} style={{ width: 220, height: 135, borderRadius: 8 }} />
@@ -134,7 +143,7 @@ export default function Food() {
           />
         </View>
 
-  <ScrollView style={{ flexDirection: 'row', marginLeft: 10, marginRight: 10, flexWrap: 'wrap', margin:10}}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
   {searchResults.length > 0 ? (
     searchResults.map((food, index) => (
       <Card key={food.id} style={styles.item2} onPress={() => pressFoodpic(food.fname)}>
@@ -145,7 +154,7 @@ export default function Food() {
     foodItems.length > 0 ? (
       foodItems.map((food, index) => (
         <Card key={food.id} style={styles.item2} onPress={() => pressFoodpic(food.fname)}>
-          <Image source={{ uri: food.picUrl }} style={{ width: 155, height: 135, borderRadius: 8 }} />
+          <Image source={{ uri: food.picUrl }} style={{ width: 200, height: 135, borderRadius: 8 }} />
         </Card>
       ))
     ) : (
@@ -194,12 +203,20 @@ const styles = StyleSheet.create({
     paddingTop: 2,
     paddingBottom: 0,
   },
+  scrollContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    padding: 10,
+  },
   item2: {
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 8,
+    margin: 4,  // Reduced margin
     borderRadius: 8,
+    width: '48%',  // Adjusted to fit better
+    
   },
   Category: {
     width: 55,
@@ -215,5 +232,32 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
     elevation: 0,
     
-  }
+  },
+  homeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    marginLeft: 10 
+  },
+  homeButtonText: {
+    fontSize: 18,
+    marginLeft: 8 
+  },
+  navHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+
+  },
+  homeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  
+    padding: 10, 
+  },
+  homeButtonText: {
+    color: 'black',
+    fontSize: 18,
+    marginLeft: 8, 
+  },
 });
