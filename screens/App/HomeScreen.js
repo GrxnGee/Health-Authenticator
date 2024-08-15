@@ -82,7 +82,7 @@ export default function Home() {
                             />
                         </Card>
                         <Text style={styles.sectionTitle}>Meal plans</Text>
-                        <Card style={styles.circleCard}>
+                        <Card style={styles.circleCard} onPress={() => navigation.navigate('Food')}>
                             <Image
                                 source={{ uri: 'https://www.andilynnfitness.com/cdn/shop/files/14-days-clean-eating-meal-plan-1200-lede-601736337d914519bb5bf8eb83540da1.jpg?v=1713741074&width=713' }} // Replace with your image URL or local path
                                 style={styles.cardImage}
@@ -104,11 +104,11 @@ export default function Home() {
      },
      scrollViewContent: {
          flexGrow: 1,
-         paddingBottom: 20, // Added padding at the bottom for scroll view space
+         paddingBottom: 20,
      },
      userInfoContainer: {
          backgroundColor: '#50A966',
-         paddingBottom: 20, // Added padding at the bottom
+         paddingBottom: 20, 
      },
      userCard: {
          backgroundColor: '#FFFFFF',

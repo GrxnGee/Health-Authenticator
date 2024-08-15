@@ -94,6 +94,7 @@ if(parseFloat(activityLevel) == 0){
     return (
         <View>
             <SafeAreaView>
+                
                 <View style={{ marginTop: Constants.statusBarHeight }}>
                     <Text style={styles.bmiText}>BMI</Text>
                     <Card style={styles.card}>
