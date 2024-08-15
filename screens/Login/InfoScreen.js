@@ -12,10 +12,13 @@ export default function InfoScreen({ route }) {
     const [weight, setWeight] = useState('');
     const [height, setHeight] = useState('');
     const [gender, setGender] = useState('');
+    const [chronic, setChronic] = useState('');
     const [birthdate, setBirthdate] = useState('');
     const [activityLevel, setActivityLevel] = useState('');
     const [showPicker, setShowPicker] = useState(false);
 
+
+    //chronic
     const activityOptions = [
         { label: 'Little to no exercise', value: 'sedentary' },
         { label: 'Light exercise', value: 'light' },
@@ -71,6 +74,7 @@ export default function InfoScreen({ route }) {
                 birthdate,
                 activityLevel,
                 old,
+                chronic
             });
 
             Alert.alert('Success', 'Account created successfully.');
@@ -124,6 +128,15 @@ export default function InfoScreen({ route }) {
                             placeholderTextColor={'gray'}
                             value={birthdate}
                             onChangeText={handleBirthdateChange}
+                            style={styles.input}
+                        />
+                    </View>
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            placeholder="Chronic Disease"
+                            placeholderTextColor={'gray'}
+                            onChangeText={setChronic}
+                            keyboardType="chronic"
                             style={styles.input}
                         />
                     </View>
