@@ -6,6 +6,10 @@ import { useNavigation } from '@react-navigation/native';
 export default function ExerciseCategories() {
   const navigation = useNavigation();
 
+  const navigateToCategory = (category) => {
+    navigation.navigate('ExerciseCat', { category });
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.navHeader}>
@@ -19,7 +23,7 @@ export default function ExerciseCategories() {
       </View>
       <Text style={styles.header}>Exercise Categories</Text>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory('Weight Training')}>
           <ImageBackground
             source={require('../../../assets/Exercise/Weight Training.jpg')} 
             style={styles.image}
@@ -28,7 +32,7 @@ export default function ExerciseCategories() {
             <Text style={styles.cardText}>Weight Training</Text>
           </ImageBackground>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory('Stretching')}>
           <ImageBackground
             source={require('../../../assets/Exercise/Stretching.jpg')} 
             style={styles.image}
@@ -37,7 +41,7 @@ export default function ExerciseCategories() {
             <Text style={styles.cardText}>Stretching</Text>
           </ImageBackground>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory('Cardio')}>
           <ImageBackground
             source={require('../../../assets/Exercise/Cardio.jpg')} 
             style={styles.image}
@@ -61,7 +65,7 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#32CD32',
+    color: 'rgba(0, 128, 0, 0.7)',
     textAlign: 'left',
     marginBottom: 20,
   },

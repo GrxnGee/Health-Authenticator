@@ -8,9 +8,12 @@ import HomeScreen from '../App/HomeScreen';
 import BMIScreen from '../App/BMIScreen';
 import Profile from '../App/Profile';
 import Exercise from './Exercise/Exercise';
+import ExerciseCat from './Exercise/ExerciseCat';
+import ExerciseInfo from './Exercise/ExerciseInfo';
 import FoodInfo from './Food/FoodInfo';
 import MealsPlan from './Food/MealsPlan';
 import Food from './Food/Food';
+
 const Tab = createBottomTabNavigator();
 
 function getTabBarVisibility(route) {
@@ -26,7 +29,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
 
-        if (route.name === 'Home' || route.name === 'Exercise' ||  route.name === 'FoodInfo' ||  route.name === 'Food'||  route.name === 'MealsPlan') {
+        if (route.name === 'Home' || route.name === 'Exercise' ||  route.name === 'FoodInfo' ||  route.name === 'Food'||  route.name === 'ExerciseCat'||  route.name === 'MealsPlan'||  route.name === 'ExerciseInfo') {
           return null; 
         }
 
@@ -96,6 +99,8 @@ function MyTabs() {
       <Tab.Screen name="FoodInfo" component={FoodInfo} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="Food" component={Food} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="MealsPlan" component={MealsPlan} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="ExerciseCat" component={ExerciseCat} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="ExerciseInfo" component={ExerciseInfo} options={{ tabBarButton: () => null }} />
     </Tab.Navigator>
   );
 }
