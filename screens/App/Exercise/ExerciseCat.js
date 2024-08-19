@@ -52,7 +52,7 @@ export default function ExerciseCat() {
           onPress={() => navigation.navigate('Exercise')}
         >
           <Ionicons name="arrow-back" size={24} color="black" />
-          <Text style={styles.homeButtonText}>Back</Text>
+          <Text style={styles.homeButtonText}>Exercise</Text>
         </TouchableOpacity>
       </View>
       <Text style={styles.header}>{category}</Text>
