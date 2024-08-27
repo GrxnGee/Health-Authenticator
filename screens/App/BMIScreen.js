@@ -5,10 +5,15 @@ import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { Card } from 'react-native-paper';
 import Constants from 'expo-constants';
 import { Picker } from "@react-native-picker/picker";
+import { useNavigation } from '@react-navigation/native';
 
 export default function AssetExample() {
     const [userInfo, setUserInfo] = useState(null);
     const user = auth.currentUser;
+    const navigation = useNavigation();
+    const goBack = () => {
+        navigation.goBack();
+    };
 
     useEffect(() => {
         if (user) {
@@ -44,8 +49,8 @@ export default function AssetExample() {
             Alert.alert('Error', 'Invalid input values.');
             return;
         }
-
-        const bmi = weight / (heightInMeters ** 2);
+        let bmi;
+         bmi = weight / (heightInMeters ** 2);
 
         if (!userInfo) {
             Alert.alert('Error', 'User information not available.');
@@ -62,7 +67,8 @@ if(parseFloat(activityLevel) == 0){
     Alert.alert('Please Select Activity');
     return;
 }
-    const tdee = bmr * parseFloat(activityLevel);
+let tdee;
+     tdee = bmr * parseFloat(activityLevel);
 
 
 
@@ -73,10 +79,14 @@ if(parseFloat(activityLevel) == 0){
         try {
             await updateDoc(doc(db, "users", user.uid), {
                 bmi: bmi.toFixed(2),
-                bmr: bmr,
-                tdee: tdee.toFixed(2),
+                bmr: bmr.toFixed(2),          
+                tdee: tdee.toFixed(2)   
             });
             console.log('Updated');
+            Alert.alert('Updated Your BMI and BMR');
+            setTimeout(() => {
+                goBack();
+            }, 2000);
         } catch (error) {
             console.error("Error updating user data: ", error);
         }

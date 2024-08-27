@@ -158,7 +158,7 @@ export default function Food() {
   keyExtractor={(item) => item.id}
   renderItem={({ item }) => (
     <Card key={item.id} style={styles.item2} onPress={() => pressFoodpic(item.fname)}>
-      <Image source={{ uri: item.picUrl }} style={{ width: 155, height: 135, borderRadius: 8 }} />
+      <Image source={{ uri: item.picUrl }} style={{ width: 175, height: 125, borderRadius: 8 }} />
     </Card>
   )}
   numColumns={2}
@@ -221,7 +221,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 4, 
     borderRadius: 8,
-    width: '48%', 
+    width: 175,
+    height: 125,
     
   },
   Category: {
