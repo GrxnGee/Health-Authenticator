@@ -71,13 +71,13 @@ const UpdateUserMeal = async (food) => {
                     await updateDoc(userMealPlanDoc, {
                         food: currentFoodValue + totalCalories,
                         lastUpdated: currentDate,
-                        tdee: userData.tdee - totalCalories
+
                     });
                 } else {
                     await updateDoc(userMealPlanDoc, {
                         food: totalCalories,
                         lastUpdated: currentDate,
-                        tdee: userData.tdee - totalCalories
+
                     });
                 }
                 setTimeout(async () => {

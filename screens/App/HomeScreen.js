@@ -65,7 +65,7 @@ export default function Home() {
                             <View style={styles.item}>
                                 <Text style={styles.label}>Food</Text>
                             </View>
-                            <Text style={styles.value}>{userInfo.tdee}</Text>
+                            <Text style={styles.value}>{userInfo.tdee - userInfo.food}</Text>
                             <View style={styles.item}>
                                 <Text style={styles.label}>Exercise</Text>
                             </View>
