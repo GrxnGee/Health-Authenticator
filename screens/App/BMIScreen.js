@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Text, StyleSheet, TextInput, View, TouchableOpacity, Alert } from 'react-native';
+import { Text, StyleSheet, TextInput, View, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { db, auth } from '../../Firebase';
 import { doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { Picker } from '@react-native-picker/picker';
+import Constants from 'expo-constants';
 
 export default function InfoScreen({ route }) {
     const navigation = useNavigation();
     const user = auth.currentUser;
     const [userInfo, setUserInfo] = useState(null);
-    const { userId } = route.params;
+
     const [weight, setWeight] = useState('');
     const [height, setHeight] = useState('');
     const [gender, setGender] = useState('');
@@ -61,8 +62,9 @@ export default function InfoScreen({ route }) {
         const parsedHeight = parseFloat(height);
         const heightInMeters = parsedHeight / 100;
         const parsedWeight = parseFloat(weight);
+        const parsedActivityLevel = parseFloat(activityLevel);
 
-        if (isNaN(parsedWeight) || isNaN(parsedHeight)) {
+        if (isNaN(parsedWeight) || isNaN(parsedHeight) || isNaN(parsedActivityLevel)) {
             Alert.alert('Error', 'Invalid input values.');
             return;
         }
@@ -77,7 +79,7 @@ export default function InfoScreen({ route }) {
             bmr = 665 + (9.6 * parsedWeight) + (1.8 * parsedHeight) - (4.7 * age);
         }
 
-        let tdee = bmr * parseFloat(activityLevel);
+        let tdee = bmr * parsedActivityLevel;
 
         let bodyType;
         if (bmi < 18.5) {
@@ -93,7 +95,7 @@ export default function InfoScreen({ route }) {
         }
 
         try {
-            await updateDoc(doc(db, "users", userId), {
+            await updateDoc(doc(db, "users",  user.uid), {
                 weight: parsedWeight,
                 height: parsedHeight,
                 bmi: bmi.toFixed(2),

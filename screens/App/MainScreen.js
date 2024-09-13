@@ -14,6 +14,7 @@ import TodayEx from './Exercise/TodayEx';
 import FoodInfo from './Food/FoodInfo';
 import MealsPlan from './Food/MealsPlan';
 import Food from './Food/Food';
+import Chats from './../Chat/Chat'
 
 const Tab = createBottomTabNavigator();
 
@@ -30,7 +31,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
 
-        if (route.name === 'Home' || route.name === 'Exercise' ||  route.name === 'TodayEx'  || route.name === 'FoodInfo' ||  route.name === 'Food'||  route.name === 'ExerciseCat'||  route.name === 'MealsPlan'||  route.name === 'ExerciseInfo') {
+        if (route.name === 'Home' || route.name === 'Exercise'|| route.name === 'BMI' ||  route.name === 'TodayEx'  || route.name === 'FoodInfo' ||  route.name === 'Food'||  route.name === 'ExerciseCat'||  route.name === 'MealsPlan'||  route.name === 'ExerciseInfo') {
           return null; 
         }
 
@@ -46,7 +47,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           }
         };
 
-        const iconName = route.name === 'BMI' ? 'create-outline' : 'person-outline';
+        const iconName = route.name === 'Chats' ? 'chatbubble-ellipses-outline' : 'person-outline';
 
         return (
           <TouchableOpacity
@@ -83,10 +84,10 @@ function MyTabs() {
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen
-        name="BMI"
-        component={BMIScreen}
+        name="Chats"
+        component={Chats}
         options={{
-          tabBarIcon: ({ color, size }) => <Ionicons name="create-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="chatbubble-ellipses-outline" color={color} size={size} />,
         }}
       />
       <Tab.Screen
@@ -103,6 +104,7 @@ function MyTabs() {
       <Tab.Screen name="ExerciseCat" component={ExerciseCat} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="ExerciseInfo" component={ExerciseInfo} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="TodayEx" component={TodayEx} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="BMI" component={BMIScreen} options={{ tabBarButton: () => null }} />
     </Tab.Navigator>
   );
 }
