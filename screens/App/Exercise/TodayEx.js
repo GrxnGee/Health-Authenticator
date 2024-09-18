@@ -93,6 +93,7 @@ const TodayEx = () => {
       }
     } else {
       alert("Please ensure all fields are filled and try again.");
+
     }
   };
 

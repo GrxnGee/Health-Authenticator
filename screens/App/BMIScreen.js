@@ -3,7 +3,7 @@ import { Text, StyleSheet, TextInput, View, TouchableOpacity, Alert, SafeAreaVie
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { db, auth } from '../../Firebase';
-import { doc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { doc, updateDoc, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
 import { Picker } from '@react-native-picker/picker';
 import Constants from 'expo-constants';
 
@@ -45,15 +45,7 @@ export default function InfoScreen({ route }) {
         { label: 'Very Heavy physical exercise', value: '1.9' },
     ];
 
-    const handleBirthdateChange = (text) => {
-        setBirthdate(text);
-    };
-
-    const handleGenderSelect = (selectedGender) => {
-        setGender(selectedGender);
-    };
-
-    const calculateBMIBMR = async () => {
+    const calculateAndSubmit = async () => {
         if (!height || !weight || !activityLevel) {
             Alert.alert('Error', 'Please fill all fields.');
             return;
@@ -70,13 +62,16 @@ export default function InfoScreen({ route }) {
         }
 
         let bmi = parsedWeight / (heightInMeters ** 2);
-        let age = userInfo ? new Date().getFullYear() - new Date(userInfo.birthdate).getFullYear() : 0;
+        let age = userInfo && userInfo.birthdate ? new Date().getFullYear() - new Date(userInfo.birthdate).getFullYear() : 0;
 
-        let bmr;
+        let bmr = 0;
         if (userInfo && userInfo.gender === 'Male') {
             bmr = 66 + (13.7 * parsedWeight) + (5 * parsedHeight) - (6.8 * age);
         } else if (userInfo && userInfo.gender === 'Female') {
             bmr = 665 + (9.6 * parsedWeight) + (1.8 * parsedHeight) - (4.7 * age);
+        } else {
+            Alert.alert('Error', 'Please update your gender and birthdate.');
+            return;
         }
 
         let tdee = bmr * parsedActivityLevel;
@@ -94,8 +89,9 @@ export default function InfoScreen({ route }) {
             bodyType = 'Extremely Obese';
         }
 
+        // Update in "users" collection
         try {
-            await updateDoc(doc(db, "users",  user.uid), {
+            await updateDoc(doc(db, "users", user.uid), {
                 weight: parsedWeight,
                 height: parsedHeight,
                 bmi: bmi.toFixed(2),
@@ -105,13 +101,41 @@ export default function InfoScreen({ route }) {
                 chronic,
                 birthdate
             });
-            Alert.alert('Success', 'Updated your health metrics successfully.');
-        } catch (error) {
-            Alert.alert('Error', 'Failed to update your health metrics.');
-            console.error("Error updating user data: ", error);
-        }
-    };
 
+            const amiDocRef = doc(db, "bmi", user.uid);
+            const currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0);
+
+            const docSnap = await getDoc(amiDocRef);
+
+            if (!docSnap.exists()) {
+
+              await setDoc(amiDocRef, {
+                exercises: [{
+                  weight: parsedWeight,
+                  height: parsedHeight,
+                  day: currentDate,
+                }],
+              });
+            } else {
+
+              const existingData = docSnap.data().exercises || [];
+
+              existingData.push({
+                weight: parsedWeight,
+                height: parsedHeight,
+                day: currentDate,
+              });
+              await updateDoc(amiDocRef, { exercises: existingData });
+            }
+        
+            alert("Weight and height data processed successfully!");
+          } catch (error) {
+            console.error("Error processing weight and height data: ", error);
+            alert("Failed to process weight and height data.");
+          }
+        };
+        
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={{ marginTop: Constants.statusBarHeight }}>
@@ -151,7 +175,7 @@ export default function InfoScreen({ route }) {
                     </Picker>
                 </View>
 
-                <TouchableOpacity style={styles.button} onPress={calculateBMIBMR}>
+                <TouchableOpacity style={styles.button} onPress={calculateAndSubmit}>
                     <Text style={styles.buttonText}>Calculate</Text>
                 </TouchableOpacity>
             </View>

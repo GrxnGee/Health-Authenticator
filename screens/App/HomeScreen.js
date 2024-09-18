@@ -14,6 +14,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { Card } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import WeightChart from '../../component/graph';
 
 export default function Home() {
   const [userInfo, setUserInfo] = useState(null);
@@ -203,6 +204,9 @@ export default function Home() {
                 style={styles.cardImage}
               />
             </Card>
+
+            <WeightChart />
+
           </>
         ) : (
           <Text style={styles.info}>Loading user information...</Text>
@@ -316,7 +320,7 @@ const styles = StyleSheet.create({
   },
   circleCard: {
     backgroundColor: "#FFFFFF",
-    height: 190,
+    height: 220,
     width: 370,
     marginTop: 20,
     marginHorizontal: 30,
@@ -451,5 +455,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     marginLeft: 10,
+  },
+  chart: {
+    marginVertical: 10,
+    borderRadius: 16,
   },
 });
