@@ -104,12 +104,12 @@ export default function InfoScreen({ route }) {
 
             const amiDocRef = doc(db, "bmi", user.uid);
             const currentDate = new Date();
-            currentDate.setHours(0, 0, 0, 0);
-
+            currentDate.setHours(0, 0, 0, 0); // Set time to midnight to compare only the date
+            
             const docSnap = await getDoc(amiDocRef);
-
+            
             if (!docSnap.exists()) {
-
+              // If document doesn't exist, create a new one with today's data
               await setDoc(amiDocRef, {
                 exercises: [{
                   weight: parsedWeight,
@@ -118,14 +118,28 @@ export default function InfoScreen({ route }) {
                 }],
               });
             } else {
-
               const existingData = docSnap.data().exercises || [];
-
-              existingData.push({
-                weight: parsedWeight,
-                height: parsedHeight,
-                day: currentDate,
+            
+              // Check if an entry for the current day already exists
+              const existingIndex = existingData.findIndex(exercise => {
+                const exerciseDay = exercise.day.toDate ? exercise.day.toDate() : new Date(exercise.day);
+                exerciseDay.setHours(0, 0, 0, 0); // Normalize time to midnight for comparison
+                return exerciseDay.getTime() === currentDate.getTime(); // Compare only the date
               });
+            
+              if (existingIndex !== -1) {
+                // If an entry for the current day exists, update it
+                existingData[existingIndex].weight = parsedWeight;
+                existingData[existingIndex].height = parsedHeight;
+              } else {
+                // If no entry for the current day exists, add a new one
+                existingData.push({
+                  weight: parsedWeight,
+                  height: parsedHeight,
+                  day: currentDate,
+                });
+              }
+            
               await updateDoc(amiDocRef, { exercises: existingData });
             }
         

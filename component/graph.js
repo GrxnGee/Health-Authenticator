@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Dimensions, StyleSheet, ActivityIndicator } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { db, auth } from '../Firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -12,59 +12,53 @@ export default function ExerciseChart() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchExerciseData = async () => {
-      try {
-        const user = auth.currentUser;
-        if (user) {
-          const bmiDocRef = doc(db, "bmi", user.uid);
-          const docSnap = await getDoc(bmiDocRef);
+    const user = auth.currentUser;
+    if (user) {
+      const bmiDocRef = doc(db, "bmi", user.uid);
 
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            const exercises = data.exercises || [];
+      const unsubscribe = onSnapshot(bmiDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const exercises = data.exercises || [];
 
-            // Sort exercises by the 'day' field in descending order
-            exercises.sort((a, b) => {
-              const dateA = a.day.toDate ? a.day.toDate() : new Date(a.day);
-              const dateB = b.day.toDate ? b.day.toDate() : new Date(b.day);
-              return dateB - dateA; 
-            });
 
-            // Get only the last 5 days
-            const recentExercises = exercises.slice(0, 5);
+          exercises.sort((a, b) => {
+            const dateA = a.day.toDate ? a.day.toDate() : new Date(a.day);
+            const dateB = b.day.toDate ? b.day.toDate() : new Date(b.day);
+            return dateA - dateB; 
+          });
 
-            const weights = [];
-            const days = [];
 
-            recentExercises.forEach(exercise => {
-              if (exercise.day && exercise.weight) {
-                const exerciseDay = exercise.day.toDate ? exercise.day.toDate() : new Date(exercise.day);
-                weights.push(exercise.weight);
-                days.push(exerciseDay.toLocaleDateString());
-              } else {
-                console.warn('Missing day or weight in exercise:', exercise);
-              }
-            });
+          const recentExercises = exercises.slice(0, 5);
 
-            console.log('Weights:', weights);
-            console.log('Days:', days);
+          const weights = [];
+          const days = [];
 
-            setExerciseData(weights);
-            setLabels(days);
-          } else {
-            console.warn("Document does not exist.");
-          }
+          recentExercises.forEach(exercise => {
+            if (exercise.day && exercise.weight) {
+              const exerciseDay = exercise.day.toDate ? exercise.day.toDate() : new Date(exercise.day);
+              weights.push(exercise.weight);
+
+              days.push(exerciseDay.toLocaleDateString('en-US'));
+            } else {
+              console.warn('Missing day or weight in exercise:', exercise);
+            }
+          });
+
+          console.log('Weights:', weights);
+          console.log('Days:', days);
+
+          setExerciseData(weights);
+          setLabels(days);
+          setLoading(false);
         } else {
-          console.warn("No user is signed in.");
+          console.warn("Document does not exist.");
+          setLoading(false);
         }
-      } catch (error) {
-        console.error("Error fetching exercise data: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      });
 
-    fetchExerciseData();
+      return () => unsubscribe();
+    }
   }, []);
 
   if (loading) {
@@ -84,16 +78,16 @@ export default function ExerciseChart() {
             datasets: [
               {
                 data: exerciseData,
-                strokeWidth: 2, // optional
+                strokeWidth: 2, 
               },
             ],
           }}
           width={screenWidth - 40}
           height={220}
           chartConfig={{
-            backgroundColor: '#e26a00',
-            backgroundGradientFrom: '#fb8c00',
-            backgroundGradientTo: '#ffa726',
+            backgroundColor: '#4caf50', 
+  backgroundGradientFrom: '#66bb6a',
+  backgroundGradientTo: '#81c784', 
             decimalPlaces: 2,
             color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
@@ -103,8 +97,9 @@ export default function ExerciseChart() {
             propsForDots: {
               r: '6',
               strokeWidth: '2',
-              stroke: '#ffa726',
+               stroke: '#84cc16',
             },
+            formatYLabel: (yValue) => `${yValue} KG`, 
           }}
           bezier
           style={styles.chart}

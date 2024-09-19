@@ -204,7 +204,7 @@ export default function Home() {
                 style={styles.cardImage}
               />
             </Card>
-
+            <Text style={styles.sectionTitle}>WeightChart</Text>
             <WeightChart />
 
           </>
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   },
   circleCard: {
     backgroundColor: "#FFFFFF",
-    height: 220,
+    height: 210,
     width: 370,
     marginTop: 20,
     marginHorizontal: 30,
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   cardImage: {
-    height: 184,
+    height:220,
     width: 380,
     borderRadius: 20,
   },
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
     top: 10,
   },
   value: {
-    fontSize: 15, // Adjust font size as needed
+    fontSize: 15, 
     fontWeight: "bold",
     marginLeft: 160,
     bottom: 10,
