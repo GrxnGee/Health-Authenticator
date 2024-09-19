@@ -32,7 +32,7 @@ export default function Profile() {
     const handleLogout = () => {
         signOut(auth)
             .then(() => {
-                navigation.replace('Login'); // เปลี่ยนเส้นทางไปยังหน้า Login หลังจากล็อกเอาท์
+                navigation.replace('Login'); 
             })
             .catch(error => {
                 Alert.alert('Error', error.message);
@@ -54,10 +54,7 @@ export default function Profile() {
                         <Text style={styles.infoText}>{userInfo.email}</Text>
                     </View>
                     <View style={styles.menuSection}>
-                        <TouchableOpacity style={styles.menuItem}>
-                            <Icon name="time-outline" size={24} color="#ff8c00" />
-                            <Text style={styles.menuText}>Order History</Text>
-                        </TouchableOpacity>
+                        
                         <TouchableOpacity style={styles.menuItem}>
                             <Icon name="lock-closed-outline" size={24} color="#ff8c00" />
                             <Text style={styles.menuText}>Privacy Policy</Text>

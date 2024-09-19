@@ -15,6 +15,7 @@ import { Card } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import WeightChart from '../../component/graph';
+import ExChart from '../../component/graphEx';
 
 export default function Home() {
   const [userInfo, setUserInfo] = useState(null);
@@ -206,6 +207,9 @@ export default function Home() {
             </Card>
             <Text style={styles.sectionTitle}>WeightChart</Text>
             <WeightChart />
+
+            <Text style={styles.sectionTitle}>ExerciseChart</Text>
+            <ExChart />
 
           </>
         ) : (

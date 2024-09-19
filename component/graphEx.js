@@ -6,7 +6,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 
 const screenWidth = Dimensions.get("window").width;
 
-export default function ExerciseChart() {
+export default function ExChart() {
   const [exerciseData, setExerciseData] = useState([]);
   const [labels, setLabels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,41 +14,47 @@ export default function ExerciseChart() {
   useEffect(() => {
     const user = auth.currentUser;
     if (user) {
-      const bmiDocRef = doc(db, "bmi", user.uid);
+      const bmiDocRef = doc(db, "todayex", user.uid);
 
       const unsubscribe = onSnapshot(bmiDocRef, (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           const exercises = data.exercises || [];
 
-
+          // Sort exercises by 'day' field in descending order
           exercises.sort((a, b) => {
             const dateA = a.day.toDate ? a.day.toDate() : new Date(a.day);
             const dateB = b.day.toDate ? b.day.toDate() : new Date(b.day);
             return dateA - dateB; 
           });
 
+          // Create a map to combine calories for the same day
+          const caloriesByDay = {};
 
-          const recentExercises = exercises.slice(0, 5);
-
-          const weights = [];
-          const days = [];
-
-          recentExercises.forEach(exercise => {
-            if (exercise.day && exercise.weight) {
+          exercises.forEach(exercise => {
+            if (exercise.day && exercise.cal) {
               const exerciseDay = exercise.day.toDate ? exercise.day.toDate() : new Date(exercise.day);
-              weights.push(exercise.weight);
+              const formattedDay = exerciseDay.toLocaleDateString('en-US');
 
-              days.push(exerciseDay.toLocaleDateString('en-US'));
+              // If the day is already in the map, add the calories to the existing value
+              if (caloriesByDay[formattedDay]) {
+                caloriesByDay[formattedDay] += exercise.cal;
+              } else {
+                caloriesByDay[formattedDay] = exercise.cal;
+              }
             } else {
-              console.warn('Missing day or weight in exercise:', exercise);
+              console.warn('Missing day or calories in exercise:', exercise);
             }
           });
 
-          console.log('Weights:', weights);
+          // Convert the map to arrays for chart data
+          const calories = Object.values(caloriesByDay);
+          const days = Object.keys(caloriesByDay);
+
+          console.log('Calories:', calories);
           console.log('Days:', days);
 
-          setExerciseData(weights);
+          setExerciseData(calories); // Set combined calories data
           setLabels(days);
           setLoading(false);
         } else {
@@ -85,9 +91,9 @@ export default function ExerciseChart() {
           width={screenWidth - 40}
           height={220}
           chartConfig={{
-            backgroundColor: '#4caf50', 
-  backgroundGradientFrom: '#66bb6a',
-  backgroundGradientTo: '#81c784', 
+            backgroundColor: '#e26a00',
+            backgroundGradientFrom: '#fb8c00',
+            backgroundGradientTo: '#ffa726',
             decimalPlaces: 0,
             color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
@@ -97,9 +103,9 @@ export default function ExerciseChart() {
             propsForDots: {
               r: '6',
               strokeWidth: '2',
-               stroke: '#84cc16',
+              stroke: '#ffa726',
             },
-            formatYLabel: (yValue) => `${yValue} KG`, 
+          
           }}
           bezier
           style={styles.chart}

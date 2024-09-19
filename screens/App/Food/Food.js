@@ -116,7 +116,7 @@ export default function Food() {
 
         <ScrollView horizontal={true} style={{margin:15 }}>
           {foodItems.map((food, index) => (
-            <Card key={food.id} style={styles.item}>
+            <Card key={food.id} style={styles.item} onPress={() => pressFoodpic(food.fname)}>
               <Image source={{ uri: food.picUrl }} style={{ width: 220, height: 135, borderRadius: 8 }} />
             </Card>
           ))}
