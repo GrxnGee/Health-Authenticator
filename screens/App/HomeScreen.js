@@ -14,12 +14,14 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { Card } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import WeightChart from '../../component/graph';
-import ExChart from '../../component/graphEx';
+import WeightChart from "../../component/graph"
+import ExChart from "../../component/graphEx"
 
 export default function Home() {
   const [userInfo, setUserInfo] = useState(null);
   const [todayExercise, setTodayExercise] = useState({ cal: '00', hours: '00' });
+  const [currentDateCal, setCurrentDateCal] = useState([]);
+  const [totalCalories, setTotalCalories] = useState(0);
   const user = auth.currentUser;
   const navigation = useNavigation();
 
@@ -27,10 +29,12 @@ export default function Home() {
     if (user) {
       const today = new Date();
       today.setHours(0, 0, 0, 0); 
-  
+      const todayDateString = today.toISOString().split('T')[0];
+
       const userDocRef = doc(db, "users", user.uid);
       const todayExDocRef = doc(db, "todayex", user.uid);
-  
+      const userFoodDocRef = doc(db, 'UserFood', user.uid);
+
       const unsubscribeUser = onSnapshot(
         userDocRef,
         (doc) => {
@@ -45,7 +49,7 @@ export default function Home() {
           Alert.alert("Error", "Failed to fetch user data.");
         }
       );
-  
+
       const unsubscribeTodayEx = onSnapshot(todayExDocRef, (doc) => {
         if (doc.exists()) {
           const exercises = doc.data().exercises || [];
@@ -54,12 +58,11 @@ export default function Home() {
             exerciseDay.setHours(0, 0, 0, 0);
             return exerciseDay.getTime() === today.getTime();
           });
-  
+
           if (todayExerciseData.length > 0) {
-        
             const totalCalories = todayExerciseData.reduce((sum, ex) => sum + parseInt(ex.cal, 10), 0);
             const totalHours = todayExerciseData.reduce((sum, ex) => sum + parseFloat(ex.hours), 0);
-  
+
             setTodayExercise({ cal: totalCalories.toString(), hours: totalHours.toString() });
           } else {
             setTodayExercise({ cal: '00', hours: '00' });
@@ -70,20 +73,67 @@ export default function Home() {
       }, (error) => {
         console.error("Error fetching today's exercise data: ", error);
       });
-  
+
+      const unsubscribeUserFood = onSnapshot(userFoodDocRef, (doc) => {
+        if (doc.exists()) {
+          const UserFoodData = doc.data();
+          const todayFoodData = UserFoodData[todayDateString] || [];
+          setCurrentDateCal(todayFoodData);
+          const total = todayFoodData.reduce((sum, item) => sum + (item.mealCalories || 0), 0);
+          setTotalCalories(total);
+        } else {
+          setCurrentDateCal([]);
+          setTotalCalories(0);
+        }
+      }, (error) => {
+        console.error("Error fetching UserFood data: ", error);
+      });
+
       return () => {
         unsubscribeUser();
         unsubscribeTodayEx();
+        unsubscribeUserFood();
       };
     }
   }, [user]);
+
   const remainingCalories = userInfo 
-  ? (
-      ((userInfo.tdee ? parseInt(userInfo.tdee, 10) : 0) -
-      (userInfo.food ? parseInt(userInfo.food, 10) : 0) )+
-      (todayExercise.cal ? parseInt(todayExercise.cal, 10) : 0)
-    ).toString()
-  : '00';
+    ? (
+        ((userInfo.tdee ? parseInt(userInfo.tdee, 10) : 0) -
+        (totalCalories ? parseInt(totalCalories, 10) : 0) ) +
+        (todayExercise.cal ? parseInt(todayExercise.cal, 10) : 0)
+      ).toString()
+    : '00';
+
+    useEffect(() => {
+      if (user) {
+          const currentDate = new Date().toISOString().split('T')[0];
+
+          const unsubscribe = onSnapshot(doc(db, 'UserFood', user.uid), (doc) => {
+              if (doc.exists()) {
+                  const UserFoodData = doc.data();
+                  const todayFoodData = UserFoodData[currentDate] || [];
+
+                  const totalMealCalories = todayFoodData.reduce((sum, item) => {
+                      if (item.mealCalories) {
+                          return sum + item.mealCalories;
+                      }
+                      return sum;
+                  }, 0);
+
+                  setTotalCalories(totalMealCalories);
+                  setCurrentDateCal(todayFoodData);
+
+              } else {
+                  setCurrentDateCal([]);
+                  setTotalCalories(0);
+              }
+          });
+
+          return () => unsubscribe();
+      }
+  }, [user]);
+  
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -116,30 +166,12 @@ export default function Home() {
             <Text style={styles.sectionTitle}>Today</Text>
             <Card style={styles.circleCard}>
               <Text
-                style={{
-                  fontWeight: "bold",
-                  textAlign: "left",
-                  right: 65,
-                  bottom: 2,
-                  fontSize: 18,
-                  top: 2,
-                  marginLeft: 30,
-                  marginTop: 10,
-                }}
+                style={styles.circleTitle}
               >
-                Calories{" "}
+                Calories
               </Text>
               <Text
-                style={{
-                  fontWeight: "bold",
-                  textAlign: "left",
-                  right: 65,
-                  bottom: 6,
-                  color: "grey",
-                  top: 2,
-                  fontSize: 14,
-                  marginLeft: 30,
-                }}
+                style={styles.circleSubtitle}
               >
                 Remaining = Goal - Food + Exercise
               </Text>
@@ -150,7 +182,7 @@ export default function Home() {
               <View style={styles.item}>
                 <Text style={styles.label}>Food</Text>
               </View>
-              <Text style={styles.value}>{userInfo.food ? userInfo.food : '00'}</Text>
+              <Text style={styles.value}>{totalCalories}</Text>
               <View style={styles.item}>
                 <Text style={styles.label}>Exercise</Text>
               </View>
@@ -162,8 +194,7 @@ export default function Home() {
               </View>
             </Card>
             <View style={styles.cardContainer}>
-              <Card style={styles.exerciseCard}
-              onPress={() => navigation.navigate("TodayEx")}>
+              <Card style={styles.exerciseCard} onPress={() => navigation.navigate("TodayEx")}>
                 <View style={styles.headerContainer}>
                   <Text style={styles.exerciseHeaderText}>Exercise</Text>
                   <Icon
@@ -205,6 +236,7 @@ export default function Home() {
                 style={styles.cardImage}
               />
             </Card>
+
             <Text style={styles.sectionTitle}>WeightChart</Text>
             <WeightChart />
 
@@ -219,6 +251,7 @@ export default function Home() {
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -324,7 +357,7 @@ const styles = StyleSheet.create({
   },
   circleCard: {
     backgroundColor: "#FFFFFF",
-    height: 210,
+    height: 190,
     width: 370,
     marginTop: 20,
     marginHorizontal: 30,
@@ -359,8 +392,28 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "bold",
   },
+  circleTitle: {
+    fontWeight: "bold",
+    textAlign: "left",
+    right: 65,
+    bottom: 2,
+    fontSize: 18,
+    top: 2,
+    marginLeft: 30,
+    marginTop: 10,
+  },
+  circleSubtitle: {
+    fontWeight: "bold",
+    textAlign: "left",
+    right: 65,
+    bottom: 6,
+    color: "grey",
+    top: 2,
+    fontSize: 14,
+    marginLeft: 30,
+  },
   cardImage: {
-    height:220,
+    height: 184,
     width: 380,
     borderRadius: 20,
   },
@@ -395,7 +448,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10, // Space between header and info
+    marginBottom: 10,
   },
   headerText: {
     fontSize: 20,
@@ -406,17 +459,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    width: "100%", // Ensure it spreads across the card
+    width: "100%", 
   },
   caloriesText: {
     fontSize: 16,
     color: "#333",
-    marginLeft: 10, // Space after the fire icon
+    marginLeft: 10,
   },
   timeText: {
     fontSize: 16,
     color: "#333",
-    marginLeft: 10, // Space after the check icon
+    marginLeft: 10,
   },
   cardContainer: {
     marginTop: 20,
@@ -459,9 +512,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     marginLeft: 10,
-  },
-  chart: {
-    marginVertical: 10,
-    borderRadius: 16,
   },
 });

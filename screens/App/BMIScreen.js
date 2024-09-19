@@ -45,37 +45,48 @@ export default function InfoScreen({ route }) {
         { label: 'Very Heavy physical exercise', value: '1.9' },
     ];
 
-    const calculateAndSubmit = async () => {
+    const calculateBMIBMR = async () => {
         if (!height || !weight || !activityLevel) {
-            Alert.alert('Error', 'Please fill all fields.');
+            Alert.alert('Error', 'Please fill in all fields.');
             return;
         }
-
+    
         const parsedHeight = parseFloat(height);
         const heightInMeters = parsedHeight / 100;
         const parsedWeight = parseFloat(weight);
         const parsedActivityLevel = parseFloat(activityLevel);
-
+    
         if (isNaN(parsedWeight) || isNaN(parsedHeight) || isNaN(parsedActivityLevel)) {
             Alert.alert('Error', 'Invalid input values.');
             return;
         }
-
+    
         let bmi = parsedWeight / (heightInMeters ** 2);
-        let age = userInfo && userInfo.birthdate ? new Date().getFullYear() - new Date(userInfo.birthdate).getFullYear() : 0;
+    
 
-        let bmr = 0;
-        if (userInfo && userInfo.gender === 'Male') {
-            bmr = 66 + (13.7 * parsedWeight) + (5 * parsedHeight) - (6.8 * age);
-        } else if (userInfo && userInfo.gender === 'Female') {
-            bmr = 665 + (9.6 * parsedWeight) + (1.8 * parsedHeight) - (4.7 * age);
-        } else {
-            Alert.alert('Error', 'Please update your gender and birthdate.');
-            return;
+        const currentDate = new Date();
+        const birthDate = new Date(userInfo.birthdate.replace(/\//g, '-'));
+        console.log("Birthdate from userInfo:", userInfo.birthdate);
+        console.log("Parsed birthdate:", birthDate);
+    
+        let age = currentDate.getFullYear() - birthDate.getFullYear();
+        if (currentDate < new Date(currentDate.getFullYear(), birthDate.getMonth(), birthDate.getDate())) {
+            age--; 
         }
-
+        console.log("Age:", age);
+    
+       console.log(age);
+        let bmr;
+        if (gender === 'Male') {
+            bmr = 66 + (13.7 * parsedWeight) + (5 * parsedHeight) - (6.8 * age);
+        } else {
+            bmr = 665 + (9.6 * parsedWeight) + (1.8 * parsedHeight) - (4.7 * age);
+        }
+    
         let tdee = bmr * parsedActivityLevel;
 
+        console.log(bmr);
+        console.log(tdee);
         let bodyType;
         if (bmi < 18.5) {
             bodyType = 'Underweight';
@@ -88,8 +99,7 @@ export default function InfoScreen({ route }) {
         } else {
             bodyType = 'Extremely Obese';
         }
-
-        // Update in "users" collection
+    
         try {
             await updateDoc(doc(db, "users", user.uid), {
                 weight: parsedWeight,
@@ -99,7 +109,6 @@ export default function InfoScreen({ route }) {
                 tdee: tdee.toFixed(2),
                 bodyType,
                 chronic,
-                birthdate
             });
 
             const amiDocRef = doc(db, "bmi", user.uid);
@@ -189,7 +198,7 @@ export default function InfoScreen({ route }) {
                     </Picker>
                 </View>
 
-                <TouchableOpacity style={styles.button} onPress={calculateAndSubmit}>
+                <TouchableOpacity style={styles.button} onPress={calculateBMIBMR}>
                     <Text style={styles.buttonText}>Calculate</Text>
                 </TouchableOpacity>
             </View>
@@ -200,73 +209,81 @@ export default function InfoScreen({ route }) {
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: '#F5F5F5',
     },
     bmiText: {
-        color: '#4A9B5D',
+        color: '#2F855A', 
         fontWeight: 'bold',
-        fontSize: 35,
-        marginLeft: 45,
-        marginBottom: 20,
+        fontSize: 36, 
+        textAlign: 'center', 
+        marginBottom: 30,
     },
     card: {
-        height: 145,
-        marginTop: 20,
-        marginLeft: 40,
-        marginRight: 40,
+        height: 135, 
+        marginHorizontal: 40,
+        marginVertical: 10, 
         justifyContent: 'center',
-        backgroundColor: 'white',
-        borderRadius: 20,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 15, 
         padding: 20,
-        elevation: 3, // Adds shadow for Android
-        shadowColor: '#000', // Adds shadow for iOS
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
+        elevation: 6, 
+        shadowColor: '#171717', 
+        shadowOffset: { width: 0, height: 4 }, 
+        shadowOpacity: 0.15, 
+        shadowRadius: 4,
         flexDirection: 'row',
         alignItems: 'center',
     },
     textBox: {
         flex: 1,
         fontWeight: 'bold',
-        fontSize: 35,
+        fontSize: 34,
         textAlign: 'center',
+        color: '#333333', 
     },
     unitText: {
-        fontWeight: 'bold',
-        fontSize: 20,
-        color: '#4A9B5D',
+        fontWeight: '600', 
+        fontSize: 22,
+        color: '#2F855A', 
     },
     button: {
-        height: 50,
-        backgroundColor: '#387647',
-        marginLeft: 40,
-        marginRight: 40,
-        borderRadius: 50,
+        height: 55, 
+        backgroundColor: '#38A169', 
+        marginHorizontal: 40,
+        borderRadius: 30, 
         justifyContent: 'center',
-        marginTop: 20,
+        marginTop: 25, 
+        shadowColor: '#2F855A',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3, 
     },
     buttonText: {
-        fontWeight: 'bold',
+        fontWeight: '600', 
         textAlign: 'center',
         color: 'white',
         fontSize: 18,
+        letterSpacing: 1, 
     },
     pickerView: {
-        borderRadius: 10,
+        borderRadius: 12,
         borderWidth: 1,
-        borderColor: '#bdc3c7',
+        borderColor: '#E2E8F0', 
         overflow: 'hidden',
-        height: 50,
-        marginLeft: 40,
-        marginRight: 40,
-        backgroundColor: '#4A9B5D',
+        height: 55, 
+        marginHorizontal: 40,
+        backgroundColor: '#2F855A', 
         justifyContent: 'center',
         marginTop: 20,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 2,
     },
     picker: {
-        color: '#fff',
+        color: '#FFFFFF', 
         justifyContent: 'center',
-        marginLeft: 15,
+        paddingHorizontal: 15,
     },
 });

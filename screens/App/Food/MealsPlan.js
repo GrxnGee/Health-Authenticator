@@ -3,146 +3,184 @@ import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db, auth } from '../../../Firebase';
 import { Ionicons } from '@expo/vector-icons';
-import { doc, onSnapshot, updateDoc, arrayUnion, deleteDoc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, arrayUnion, deleteDoc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function MealsPlan({ navigation }) {
     const user = auth.currentUser;
     const [mealPlan, setMealPlan] = useState([]);
-    const [totalCalories, setTotalCalories] = useState(0);
     const [userInfo, setUserInfo] = useState(null);
+    const [currentDateCal, setCurrentDateCal] = useState([]);
+    const [totalCalories, setTotalCalories] = useState(0);
+    const [totalUserFoodCalories, settotalUserFoodCalories] = useState(0);
+    useEffect(() => {
+        if (user) {
+            const userDocRef = doc(db, "users", user.uid);
+            const unsubscribe = onSnapshot(userDocRef, (doc) => {
+                if (doc.exists()) {
+                    setUserInfo(doc.data());
+                } else {
+                    Alert.alert('Error', 'No such document!');
+                }
+            }, (error) => {
+                console.error("Error fetching user data: ", error);
+                Alert.alert('Error', 'Failed to fetch user data.');
+            });
+
+            return () => unsubscribe();
+        }
+    }, [user]);
 
 
-   useEffect(() => {
-    if (user) {
-        const userDocRef = doc(db, "users", user.uid);
-        const unsubscribe = onSnapshot(userDocRef, (doc) => {
-            if (doc.exists()) {
-                setUserInfo(doc.data()); 
-            } else {
-                Alert.alert('Error', 'No such document!');
-            }
-        }, (error) => {
-            console.error("Error fetching user data: ", error);
-            Alert.alert('Error', 'Failed to fetch user data.');
-        });
+    useEffect(() => {
+        if (user) {
+            const unsubscribe = onSnapshot(doc(db, 'mealPlans', user.uid), (doc) => {
+                if (doc.exists()) {
+                    const mealPlanData = doc.data();
+                    setMealPlan(mealPlanData.foodItems || []);
+                    const total = (mealPlanData.foodItems || []).reduce((sum, item) => sum + (item.cal || 0), 0);
+                    setTotalCalories(total);
+                } else {
+                    setMealPlan([]);
+                    setTotalCalories(0);
+                }
+            });
+            return () => unsubscribe();
+        }
+    }, [user]);
 
-        return () => unsubscribe();
-    }
-}, [user]);
 
 
-useEffect(() => {
-    if (user) {
-        const unsubscribe = onSnapshot(doc(db, 'mealPlans', user.uid), (doc) => {
-            if (doc.exists()) {
-                const mealPlanData = doc.data();
-                setMealPlan(mealPlanData.foodItems || []);
-                const total = (mealPlanData.foodItems || []).reduce((sum, item) => sum + (item.cal || 0), 0);
-                setTotalCalories(total);
-            } else {
-                setMealPlan([]);
-                setTotalCalories(0);
-            }
-        });
-        return () => unsubscribe();
-    }
-}, [user]);
 
-const UpdateUserMeal = async (food) => {
-    const userMealPlanDoc = doc(db, 'users', user.uid);
+    useEffect(() => {
+        if (user) {
+            const currentDate = new Date().toISOString().split('T')[0];
 
-    try {
-        const docSnapshot = await getDoc(userMealPlanDoc);
-        const currentDate = new Date().toISOString().split('T')[0];
+            const unsubscribe = onSnapshot(doc(db, 'UserFood', user.uid), (doc) => {
+                if (doc.exists()) {
+                    const UserFoodData = doc.data();
+                    const todayFoodData = UserFoodData[currentDate] || [];
 
-        if (docSnapshot.exists()) {
-            const userData = docSnapshot.data();
-            const lastUpdated = userData.lastUpdated || '';
+                    const totalMealCalories = todayFoodData.reduce((sum, item) => {
+                        if (item.mealCalories) {
+                            return sum + item.mealCalories;
+                        }
+                        return sum;
+                    }, 0);
+
+                    settotalUserFoodCalories(totalMealCalories);
+                    setCurrentDateCal(todayFoodData);
+
+                } else {
+                    setCurrentDateCal([]);
+                    settotalUserFoodCalories(0);
+                }
+            });
+
+            return () => unsubscribe();
+        }
+    }, [user]);
+
+
+    const UpdateUserMeal = async (food) => {
+        const userMealPlanDoc = doc(db, 'users', user.uid);
+        const userFoodDoc = doc(db, 'UserFood', user.uid);
+
+        try {
+            const docSnapshot = await getDoc(userMealPlanDoc);
+            const userFoodSnapshot = await getDoc(userFoodDoc);
+            const currentDate = new Date().toISOString().split('T')[0];
             const userTDEE = userInfo?.tdee || 0;
 
-      
-            if (totalCalories > userTDEE / 3) {
-                Alert.alert('Warning', 'Total calories exceed one-third of your daily recommended intake.');
+            if (food == 0) {
+                Alert.alert('Warning', 'Please add food to your meal.');
                 return;
-            } else {
+            }
 
-                if (lastUpdated === currentDate) {
-                    const currentFoodValue = userData.food || 0;
-                    await updateDoc(userMealPlanDoc, {
-                        food: currentFoodValue + totalCalories,
-                        lastUpdated: currentDate,
+            console.log(food);
+            if (totalUserFoodCalories + totalCalories > userTDEE) {
+                Alert.alert('Warning', 'Total calories exceed your daily recommended intake.');
+                return;
+            }
+            if (docSnapshot.exists()) {
+                if (userFoodSnapshot.exists()) {
+                    const userFoodData = userFoodSnapshot.data();
+                    const todayFood = userFoodData[currentDate] || [];
 
+                    await updateDoc(userFoodDoc, {
+                        [currentDate]: arrayUnion({ mealCalories: food, time: new Date().toISOString() }),
                     });
                 } else {
-                    await updateDoc(userMealPlanDoc, {
-                        food: totalCalories,
-                        lastUpdated: currentDate,
-
+                    await setDoc(userFoodDoc, {
+                        [currentDate]: [{ mealCalories: food, time: new Date().toISOString() }],
                     });
                 }
                 setTimeout(async () => {
                     await DeleteCurrentMealPlan();
                     navigation.goBack();
                 }, 2000);
+
+                alert('Added to your meal plan!');
+            } else {
+                await setDoc(userMealPlanDoc, {
+                    food: totalCalories,
+                    lastUpdated: currentDate
+                });
+                await setDoc(userFoodDoc, {
+                    food: mealPlan,
+                    date: currentDate,
+                });
                 alert('Added to your meal plan!');
             }
-        } else {
-            await setDoc(userMealPlanDoc, {
-                food: totalCalories,
-                lastUpdated: currentDate
-            });
-            alert('Added to your meal plan!');
+        } catch (error) {
+            console.error("Error updating meal plan: ", error);
+            alert('Failed to add food item to your meal plan.');
         }
-    } catch (error) {
-        console.error("Error updating meal plan: ", error);
-        alert('Failed to add food item to your meal plan.');
-    }
-};
+    };
 
 
-const deleteFoodItem = async (foodItemId) => {
-    const mealPlanDoc = doc(db, 'mealPlans', user.uid);
 
-    try {
-        const docSnapshot = await getDoc(mealPlanDoc);
-        if (docSnapshot.exists()) {
-            const mealPlanData = docSnapshot.data();
-            const updatedFoodItems = mealPlanData.foodItems.filter(item => item.id !== foodItemId);
-            await updateDoc(mealPlanDoc, {
-                foodItems: updatedFoodItems
-            });
+    const deleteFoodItem = async (foodItemId) => {
+        const mealPlanDoc = doc(db, 'mealPlans', user.uid);
 
-            setMealPlan(updatedFoodItems);
-            const total = updatedFoodItems.reduce((sum, item) => sum + (item.cal || 0), 0);
-            setTotalCalories(total);
+        try {
+            const docSnapshot = await getDoc(mealPlanDoc);
+            if (docSnapshot.exists()) {
+                const mealPlanData = docSnapshot.data();
+                const updatedFoodItems = mealPlanData.foodItems.filter(item => item.id !== foodItemId);
+                await updateDoc(mealPlanDoc, {
+                    foodItems: updatedFoodItems
+                });
+
+                setMealPlan(updatedFoodItems);
+                const total = updatedFoodItems.reduce((sum, item) => sum + (item.cal || 0), 0);
+                setTotalCalories(total);
+            }
+        } catch (error) {
+            console.error("Error deleting food item: ", error);
+            alert('Failed to delete food item.');
         }
-    } catch (error) {
-        console.error("Error deleting food item: ", error);
-        alert('Failed to delete food item.');
-    }
-};
+    };
 
-const PressSaveMealCal = async (food) => {
-    await UpdateUserMeal(food);
-};
+    const PressSaveMealCal = async (food) => {
+        await UpdateUserMeal(food);
+    };
 
-const DeleteCurrentMealPlan = async () => {
-    const mealPlanDoc = doc(db, 'mealPlans', user.uid);
+    const DeleteCurrentMealPlan = async () => {
+        const mealPlanDoc = doc(db, 'mealPlans', user.uid);
 
-    try {
-        const docSnapshot = await getDoc(mealPlanDoc);
-        if (docSnapshot.exists()) {
-            await deleteDoc(mealPlanDoc);
+        try {
+            const docSnapshot = await getDoc(mealPlanDoc);
+            if (docSnapshot.exists()) {
+                await deleteDoc(mealPlanDoc);
+            }
+        } catch (error) {
+            console.error("Error deleting meal plan: ", error);
+            alert('Failed to delete current meal plan.');
         }
-    } catch (error) {
-        console.error("Error deleting meal plan: ", error);
-        alert('Failed to delete current meal plan.');
-    }
-};
+    };
 
-    console.log('Meal plan after setting:', mealPlan);
-    console.log('Total calories:', totalCalories);
-
+    console.log("Current totalCalories:", totalCalories);
+    console.log("Current totalUserFoodCalories:", totalUserFoodCalories);
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -302,12 +340,12 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
-    CalRow:{
-        justifyContent:'center',
-        alignContent:'center'
+    CalRow: {
+        justifyContent: 'center',
+        alignContent: 'center'
     },
-    CalcardContainer : {
-         justifyContent:'center',
-        alignContent:'center'
+    CalcardContainer: {
+        justifyContent: 'center',
+        alignContent: 'center'
     }
 });

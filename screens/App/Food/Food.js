@@ -116,7 +116,7 @@ export default function Food() {
 
         <ScrollView horizontal={true} style={{margin:15 }}>
           {foodItems.map((food, index) => (
-            <Card key={food.id} style={styles.item} onPress={() => pressFoodpic(food.fname)}>
+        <Card key={food.id} style={styles.item} onPress={() => pressFoodpic(food.fname)}>
               <Image source={{ uri: food.picUrl }} style={{ width: 220, height: 135, borderRadius: 8 }} />
             </Card>
           ))}
@@ -190,9 +190,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     margin: 10,
-    borderRadius: 8,
-    flex: 2,
-    marginRight: 5
+    borderRadius: 12, 
+    elevation: 3, 
   },
   textBox: {
     fontWeight: 'bold',
@@ -208,6 +207,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 2,
     paddingBottom: 0,
+    color: 'white',
   },
   scrollContainer: {
     flexDirection: 'row',
@@ -219,65 +219,57 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 4, 
-    borderRadius: 8,
+    margin: 6, 
+    borderRadius: 12,
     width: 175,
     height: 125,
-    
+    elevation: 3,
   },
   Category: {
     width: 55,
     height: 75,
     alignItems: 'center',
     margin: 10,
-    borderRadius: 8,
-    marginRight: 5,
-    backgroundColor: 'transparent',
-    shadowColor: 'transparent',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    elevation: 0,
-    
+    borderRadius: 12,
+    elevation: 2,
   },
   homeButton: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
-    marginLeft: 10 
   },
   homeButtonText: {
+    color: 'black',
     fontSize: 18,
-    marginLeft: 8 
+    marginLeft: 8,
+    fontWeight: 'bold',
   },
   navHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
-
-  },
-  homeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  
-    padding: 10, 
-  },
-  homeButtonText: {
-    color: 'black',
-    fontSize: 18,
-    marginLeft: 8, 
-    fontWeight: 'bold',
+    paddingVertical: 15,  
+    backgroundColor: '#F5F5F5', 
+    elevation: 4,
   },
   row: {
     justifyContent: 'space-between',
+    marginHorizontal: 10,
   },
   MealsButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
-    marginLeft: '50%' ,
+    justifyContent: 'center',
+    padding: 8,
+    marginLeft: 'auto',
+    backgroundColor: '#EAF2E3',
+    borderRadius: 20, 
+    elevation: 2,
   },
   MealsButtonText: {
-    fontSize: 10,
-    marginLeft: 8 
-  }
+    fontSize: 12,
+    marginLeft: 5,
+    color: '#50A966',
+    fontWeight: 'bold',
+  },
 });

@@ -97,6 +97,17 @@ const TodayEx = () => {
     }
   };
 
+  const goBack = () => {
+    navigation.navigate('Home');
+};
+
+const pressAdd = async () => {
+    await handleSubmit();
+    setTimeout(() => {
+        goBack();
+    }, 2000);
+};
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -172,7 +183,7 @@ const TodayEx = () => {
           </View>
         )}
 
-        <Button title="Submit" onPress={handleSubmit} />
+        <Button title="Submit" onPress={pressAdd} />
         {userBody && <Suggest userBody={userBody} />}
       </ScrollView>
     </View>
