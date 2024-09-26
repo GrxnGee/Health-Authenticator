@@ -51,9 +51,6 @@ export default function ExChart() {
           const calories = Object.values(caloriesByDay);
           const days = Object.keys(caloriesByDay);
 
-          console.log('Calories:', calories);
-          console.log('Days:', days);
-
           setExerciseData(calories); // Set combined calories data
           setLabels(days);
           setLoading(false);

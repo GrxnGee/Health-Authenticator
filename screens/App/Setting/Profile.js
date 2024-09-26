@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, Alert, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
-import { auth, db } from '../../Firebase';
+import { auth, db } from '../../../Firebase';
 import { doc, onSnapshot } from "firebase/firestore";
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { signOut } from "firebase/auth";
 
+import Setting from './Setting';
 export default function Profile() {
     const [userInfo, setUserInfo] = useState(null);
     const user = auth.currentUser;
@@ -46,7 +47,7 @@ export default function Profile() {
                     <Text style={styles.headerText}>Profile</Text>
                     <View style={styles.profileSection}>
                         <Image
-                            source={userInfo.gender === 'Female' ? require('../../assets/female.png') : require('../../assets/male.png')}
+                            source={userInfo.gender === 'Female' ? require('./../../../assets/female.png') : require('./../../../assets/male.png')}
                             style={styles.profileImage}
                         />
                         <Text style={styles.nameText}>{userInfo.name}</Text>
@@ -54,12 +55,12 @@ export default function Profile() {
                         <Text style={styles.infoText}>{userInfo.email}</Text>
                     </View>
                     <View style={styles.menuSection}>
-                        
+
                         <TouchableOpacity style={styles.menuItem}>
                             <Icon name="lock-closed-outline" size={24} color="#ff8c00" />
                             <Text style={styles.menuText}>Privacy Policy</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.menuItem}>
+                        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Setting')}>
                             <Icon name="settings-outline" size={24} color="#ff8c00" />
                             <Text style={styles.menuText}>Settings</Text>
                         </TouchableOpacity>

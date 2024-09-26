@@ -49,7 +49,7 @@ export default function ExerciseCat() {
       <View style={styles.navHeader}>
         <TouchableOpacity
           style={styles.homeButton}
-          onPress={() => navigation.navigate('Exercise')}
+          onPress={() => navigation.navigate('Home')}
         >
           <Ionicons name="arrow-back" size={24} color="black" />
           <Text style={styles.homeButtonText}>Exercise</Text>

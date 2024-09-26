@@ -8,7 +8,6 @@ import ForgotScreen from './screens/Login/ForgotScreen';
 import InfoScreen from './screens/Login/InfoScreen';
 import MainScreen from './screens/App/MainScreen';
 import MainAdminScreen from './screens/Admin/MainAdmin';
-
 const Stack = createNativeStackNavigator();
 
 function App() {

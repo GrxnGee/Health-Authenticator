@@ -45,8 +45,6 @@ export default function ExerciseChart() {
             }
           });
 
-          console.log('Weights:', weights);
-          console.log('Days:', days);
 
           setExerciseData(weights);
           setLabels(days);

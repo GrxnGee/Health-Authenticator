@@ -247,6 +247,7 @@ export default function Home() {
         ) : (
           <Text style={styles.info}>Loading user information...</Text>
         )}
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -513,4 +514,5 @@ const styles = StyleSheet.create({
     color: "#333",
     marginLeft: 10,
   },
+
 });

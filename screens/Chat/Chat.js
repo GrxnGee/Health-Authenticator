@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: '#ddd',
     backgroundColor: '#fff',
-    marginBottom: 20,
+    marginBottom: 35,
   },
   input: {
     flex: 1,

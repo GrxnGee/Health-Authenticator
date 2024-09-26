@@ -3,10 +3,9 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
-
 import HomeScreen from '../App/HomeScreen';
 import BMIScreen from '../App/BMIScreen';
-import Profile from '../App/Profile';
+import Profile from './Setting/Profile';
 import Exercise from './Exercise/Exercise';
 import ExerciseCat from './Exercise/ExerciseCat';
 import ExerciseInfo from './Exercise/ExerciseInfo';
@@ -14,7 +13,10 @@ import TodayEx from './Exercise/TodayEx';
 import FoodInfo from './Food/FoodInfo';
 import MealsPlan from './Food/MealsPlan';
 import Food from './Food/Food';
-import Chats from './../Chat/Chat'
+import Chats from './../Chat/Chat';
+import Scanner from './../Barcode/Scanner';
+import InfoScanner from './../Barcode/InfoScanner';
+import Setting from './Setting/Setting';
 
 const Tab = createBottomTabNavigator();
 
@@ -31,7 +33,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
 
-        if (route.name === 'Home' || route.name === 'Exercise'|| route.name === 'BMI' ||  route.name === 'TodayEx'  || route.name === 'FoodInfo' ||  route.name === 'Food'||  route.name === 'ExerciseCat'||  route.name === 'MealsPlan'||  route.name === 'ExerciseInfo') {
+        if (route.name === 'Setting' ||route.name === 'Chats' || route.name === 'InfoScanner' || route.name === 'Home' || route.name === 'Exercise' || route.name === 'BMI' || route.name === 'TodayEx' || route.name === 'FoodInfo' || route.name === 'Food' || route.name === 'ExerciseCat' || route.name === 'MealsPlan' || route.name === 'ExerciseInfo') {
           return null; 
         }
 
@@ -47,7 +49,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           }
         };
 
-        const iconName = route.name === 'Chats' ? 'chatbubble-ellipses-outline' : 'person-outline';
+        const iconName = route.name === 'Scanner' ? 'qr-code-outline' : 'person-outline';
 
         return (
           <TouchableOpacity
@@ -84,8 +86,8 @@ function MyTabs() {
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen
-        name="Chats"
-        component={Chats}
+        name="Scanner"
+        component={Scanner}
         options={{
           tabBarIcon: ({ color, size }) => <Ionicons name="chatbubble-ellipses-outline" color={color} size={size} />,
         }}
@@ -105,14 +107,24 @@ function MyTabs() {
       <Tab.Screen name="ExerciseInfo" component={ExerciseInfo} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="TodayEx" component={TodayEx} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="BMI" component={BMIScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="Chats" component={Chats} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="InfoScanner" component={InfoScanner} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="Setting" component={Setting} options={{ tabBarButton: () => null }} />
     </Tab.Navigator>
   );
 }
 
-export default function MainScreen() {
+export default function MainScreen({ navigation }) { 
   return (
     <View style={styles.container}>
       <MyTabs />
+      
+      <TouchableOpacity 
+        style={styles.chatIcon} 
+        onPress={() => navigation.navigate("Chats")} 
+      >
+        <Ionicons name="chatbubble-ellipses-outline" size={30} color="#FFFFFF" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -121,11 +133,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#070420',
     flex: 1,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    height: 80, // Adjust height for more space
-    
   },
   tabContainer: {
     flexDirection: 'row',
@@ -162,5 +169,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 5,
     borderColor: 'white',
+  },
+  chatIcon: {
+    position: 'absolute',
+    bottom: 70, 
+    right: 25, 
+    backgroundColor: 'rgba(56, 118, 71, 1)',
+    borderRadius: 25,
+    padding: 10,
+    elevation: 5,
+    opacity: 0.4, 
   },
 });
