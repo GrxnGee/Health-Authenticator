@@ -2,9 +2,11 @@ import React from 'react';
 import { Text, View, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 export default function ExerciseCategories() {
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
   const navigateToCategory = (category) => {
     navigation.navigate('ExerciseCat', { category });
@@ -18,36 +20,36 @@ export default function ExerciseCategories() {
           onPress={() => navigation.navigate('Home')}
         >
           <Ionicons name="arrow-back" size={24} color="black" />
-          <Text style={styles.homeButtonText}>Home</Text>
+          <Text style={styles.homeButtonText}>{t('home')}</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.header}>Exercise Categories</Text>
+      <Text style={styles.header}>{t('exerciseCategories')}</Text>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory('Weight Training')}>
+        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory(t('weightTraining'))}>
           <ImageBackground
             source={require('../../../assets/Exercise/Weight Training.jpg')} 
             style={styles.image}
             imageStyle={styles.imageBorder}
           >
-            <Text style={styles.cardText}>Weight Training</Text>
+            <Text style={styles.cardText}>{t('weightTraining')}</Text>
           </ImageBackground>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory('Stretching')}>
+        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory(t('stretching'))}>
           <ImageBackground
             source={require('../../../assets/Exercise/Stretching.jpg')} 
             style={styles.image}
             imageStyle={styles.imageBorder}
           >
-            <Text style={styles.cardText}>Stretching</Text>
+            <Text style={styles.cardText}>{t('stretching')}</Text>
           </ImageBackground>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory('Cardio')}>
+        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory(t('cardio'))}>
           <ImageBackground
             source={require('../../../assets/Exercise/Cardio.jpg')} 
             style={styles.image}
             imageStyle={styles.imageBorder}
           >
-            <Text style={styles.cardText}>Cardio</Text>
+            <Text style={styles.cardText}>{t('cardio')}</Text>
           </ImageBackground>
         </TouchableOpacity>
       </View>

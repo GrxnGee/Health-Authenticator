@@ -3,6 +3,7 @@ import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity } from 'react
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 
 export default function ExerciseCat() {
   const route = useRoute();
@@ -10,10 +11,12 @@ export default function ExerciseCat() {
   const { category } = route.params;
   const [exercises, setExercises] = useState([]);
   const db = getFirestore();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     const fetchExercises = async () => {
-      const q = query(collection(db, 'exercise'), where('cat', '==', category));
+      const collectionName = i18n.language === 'en' ? 'exercise' : 'exerciseEng';
+      const q = query(collection(db, collectionName), where('cat', '==', category));
       const querySnapshot = await getDocs(q);
       const fetchedExercises = [];
       querySnapshot.forEach((doc) => {
@@ -23,7 +26,7 @@ export default function ExerciseCat() {
     };
 
     fetchExercises();
-  }, [category]);
+  }, [category, i18n.language]);
 
   const renderExercise = ({ item }) => (
     <TouchableOpacity
@@ -35,12 +38,12 @@ export default function ExerciseCat() {
         cat: item.cat 
       })}
     >
-     <View >
-    <Image source={{ uri: item.picUrl }} style={styles.exerciseImage} />
-    <View style={styles.textOverlay}>
-      <Text style={styles.exerciseName}>{item.Exname}</Text>
-    </View>
-  </View>
+      <View>
+        <Image source={{ uri: item.picUrl }} style={styles.exerciseImage} />
+        <View style={styles.textOverlay}>
+          <Text style={styles.exerciseName}>{item.Exname}</Text>
+        </View>
+      </View>
     </TouchableOpacity>
   );
 
@@ -49,13 +52,13 @@ export default function ExerciseCat() {
       <View style={styles.navHeader}>
         <TouchableOpacity
           style={styles.homeButton}
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('Exercise')}
         >
           <Ionicons name="arrow-back" size={24} color="black" />
-          <Text style={styles.homeButtonText}>Exercise</Text>
+          <Text style={styles.homeButtonText}>{t('exercise')}</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.header}>{category}</Text>
+      <Text style={styles.header}>{t(category.toLowerCase())}</Text>
       <FlatList
         data={exercises}
         renderItem={renderExercise}
@@ -66,6 +69,7 @@ export default function ExerciseCat() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

@@ -9,6 +9,7 @@ import {
   ScrollView,
   Image
 } from "react-native";
+import { useTranslation } from 'react-i18next';
 import { auth, db } from "../../Firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import { Card } from "react-native-paper";
@@ -18,6 +19,7 @@ import WeightChart from "../../component/graph"
 import ExChart from "../../component/graphEx"
 
 export default function Home() {
+  const { t } = useTranslation();
   const [userInfo, setUserInfo] = useState(null);
   const [todayExercise, setTodayExercise] = useState({ cal: '00', hours: '00' });
   const [currentDateCal, setCurrentDateCal] = useState([]);
@@ -134,7 +136,7 @@ export default function Home() {
       }
   }, [user]);
   
-  return (
+   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         {userInfo ? (
@@ -143,7 +145,7 @@ export default function Home() {
               <Card style={styles.userCard}>
                 <Text style={styles.baseText}>{userInfo.name}</Text>
                 <View style={styles.historyContainer}>
-                  <Text style={styles.historyText}>History</Text>
+                  <Text style={styles.historyText}>{t('history')}</Text>
                 </View>
                 <Text style={styles.secText}>{userInfo.birthdate}</Text>
                 <Text style={styles.infoText}>{userInfo.weight} KG</Text>
@@ -159,32 +161,24 @@ export default function Home() {
                   style={styles.button}
                   onPress={() => navigation.navigate("BMI")}
                 >
-                  <Text style={styles.buttonText}>Start Calculate</Text>
+                  <Text style={styles.buttonText}>{t('startcalculate')}</Text>
                 </TouchableOpacity>
               </Card>
             </View>
-            <Text style={styles.sectionTitle}>Today</Text>
+            <Text style={styles.sectionTitle}>{t('today')}</Text>
             <Card style={styles.circleCard}>
-              <Text
-                style={styles.circleTitle}
-              >
-                Calories
-              </Text>
-              <Text
-                style={styles.circleSubtitle}
-              >
-                Remaining = Goal - Food + Exercise
-              </Text>
+              <Text style={styles.circleTitle}>{t('calories')}</Text>
+              <Text style={styles.circleSubtitle}>{t('remaining')}</Text>
               <View style={styles.item}>
-                <Text style={styles.label}>Base Goal</Text>
+                <Text style={styles.label}>{t('baseGoal')}</Text>
               </View>
               <Text style={styles.value}>{userInfo.tdee}</Text>
               <View style={styles.item}>
-                <Text style={styles.label}>Food</Text>
+                <Text style={styles.label}>{t('food')}</Text>
               </View>
               <Text style={styles.value}>{totalCalories}</Text>
               <View style={styles.item}>
-                <Text style={styles.label}>Exercise</Text>
+                <Text style={styles.label}>{t('exercise')}</Text>
               </View>
               <Text style={styles.value}>{todayExercise.cal}</Text>
               <View style={[styles.circle, styles.circleOutline]}>
@@ -196,7 +190,7 @@ export default function Home() {
             <View style={styles.cardContainer}>
               <Card style={styles.exerciseCard} onPress={() => navigation.navigate("TodayEx")}>
                 <View style={styles.headerContainer}>
-                  <Text style={styles.exerciseHeaderText}>Exercise</Text>
+                  <Text style={styles.exerciseHeaderText}>{t('exercise')}</Text>
                   <Icon
                     name="plus"
                     size={24}
@@ -212,7 +206,7 @@ export default function Home() {
                 </View>
               </Card>
             </View>
-            <Text style={styles.sectionTitle}>Available plans</Text>
+            <Text style={styles.sectionTitle}>{t('availableplans')}</Text>
             <Card
               style={styles.circleCard}
               onPress={() => navigation.navigate("Exercise")}
@@ -224,7 +218,7 @@ export default function Home() {
                 style={styles.cardImage}
               />
             </Card>
-            <Text style={styles.sectionTitle}>Meal plans</Text>
+            <Text style={styles.sectionTitle}>{t('mealplans')}</Text>
             <Card
               style={styles.circleCard}
               onPress={() => navigation.navigate("Food")}
@@ -236,18 +230,14 @@ export default function Home() {
                 style={styles.cardImage}
               />
             </Card>
-
-            <Text style={styles.sectionTitle}>WeightChart</Text>
+            <Text style={styles.sectionTitle}>{t('weightChart')}</Text>
             <WeightChart />
-
-            <Text style={styles.sectionTitle}>ExerciseChart</Text>
+            <Text style={styles.sectionTitle}>{t('exerciseChart')}</Text>
             <ExChart />
-
           </>
         ) : (
-          <Text style={styles.info}>Loading user information...</Text>
+          <Text style={styles.info}>{t('loadingUserInfo')}</Text>
         )}
-
       </ScrollView>
     </SafeAreaView>
   );

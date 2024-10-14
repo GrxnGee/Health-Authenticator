@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "2EC.",
-    "slug": "2EC.",
+    "name": "2EC Project",
+    "slug": "2ec-project",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -18,10 +18,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "centers.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "38e929ac-f78f-45d6-a6ba-dadc82e96663"
+      }
+    },
+    "owner": "centerv1"
   }
 }

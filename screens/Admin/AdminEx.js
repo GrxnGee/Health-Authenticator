@@ -12,18 +12,23 @@ const AdminExercise = ({ navigation }) => {
   const [Exname, setExname] = useState('');
   const [IEx, setIEx] = useState('');
   const [cat, setCat] = useState('');
+  const [Exbody, setExbody] = useState('');
+  const [ExMet, setExMet] = useState('');
   const [picUrl, setpicUrl] = useState('');
   const [showPicker, setShowPicker] = useState(false);
+  const [showPickers, setShowPickers] = useState(false);
 
   const clearFields = () => {
     setpicUrl('');
     setExname('');
     setIEx('');
     setCat('');
+    setExbody('');
+    setExMet('');
   };
 
   const validateFields = () => {
-    return Exname && IEx && cat && picUrl;
+    return ExMet && Exname && IEx && cat && picUrl && Exbody;
   };
 
   const addDataToFirestore = async () => {
@@ -38,6 +43,8 @@ const AdminExercise = ({ navigation }) => {
         Exname: Exname,
         IEx: IEx,
         cat: cat,
+        Exbody: Exbody,
+        ExMet: ExMet,
       });
       console.log("Document written with ID: ", docRef.id);
       Alert.alert("Success", `Document successfully created with ID: ${docRef.id}`);
@@ -60,6 +67,13 @@ const AdminExercise = ({ navigation }) => {
           onChangeText={setpicUrl}
           value={picUrl}
           placeholder="Enter Picture Url"
+          placeholderTextColor="#aaa"
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={setExMet}
+          value={ExMet}
+          placeholder="Enter Ex Met"
           placeholderTextColor="#aaa"
         />
         <TextInput
@@ -97,6 +111,30 @@ const AdminExercise = ({ navigation }) => {
               <Picker.Item label="Weight Training" value="Weight Training" />
               <Picker.Item label="Stretching" value="Stretching" />
               <Picker.Item label="Cardio" value="Cardio" />
+            </Picker>
+          )}
+        </View>
+
+        <View style={styles.pickerWrapper}>
+          <TouchableOpacity onPress={() => setShowPickers(!showPickers)}>
+            <Text style={[styles.pickerText, Exbody ? styles.selectedPickerText : styles.placeholderText]}>
+              {Exbody ? Exbody : "Body Type"}
+            </Text>
+          </TouchableOpacity>
+          {showPickers && (
+            <Picker
+              selectedValue={Exbody}
+              style={styles.picker}
+              onValueChange={(itemValue) => {
+                setExbody(itemValue);
+                setShowPickers(false);
+              }}
+            >
+              <Picker.Item label="Underweight" value="Underweight" />
+              <Picker.Item label="Normal" value="Normal" />
+              <Picker.Item label="Overweight" value="Overweight" />
+              <Picker.Item label="Obese" value="Obese" />
+              <Picker.Item label="Extremely Obese" value="Extremely Obese" />
             </Picker>
           )}
         </View>

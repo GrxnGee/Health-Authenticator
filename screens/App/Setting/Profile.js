@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, Alert, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { auth, db } from '../../../Firebase';
 import { doc, onSnapshot } from "firebase/firestore";
 import { useNavigation } from '@react-navigation/native';
@@ -7,8 +8,11 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { signOut } from "firebase/auth";
 
 import Setting from './Setting';
+
 export default function Profile() {
+    const { t, i18n } = useTranslation();
     const [userInfo, setUserInfo] = useState(null);
+    const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
     const user = auth.currentUser;
     const navigation = useNavigation();
 
@@ -40,11 +44,23 @@ export default function Profile() {
             });
     };
 
+    const changeLanguage = () => {
+        const newLanguage = currentLanguage === 'en' ? 'th' : 'en';
+        i18n.changeLanguage(newLanguage);
+        setCurrentLanguage(newLanguage);
+        
+        // Force update on Exercise screens
+        navigation.setParams({ language: newLanguage });
+        
+
+        global.currentLanguage = newLanguage;
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             {userInfo ? (
                 <>
-                    <Text style={styles.headerText}>Profile</Text>
+                    <Text style={styles.headerText}>{t('profile')}</Text>
                     <View style={styles.profileSection}>
                         <Image
                             source={userInfo.gender === 'Female' ? require('./../../../assets/female.png') : require('./../../../assets/male.png')}
@@ -55,23 +71,26 @@ export default function Profile() {
                         <Text style={styles.infoText}>{userInfo.email}</Text>
                     </View>
                     <View style={styles.menuSection}>
-
                         <TouchableOpacity style={styles.menuItem}>
                             <Icon name="lock-closed-outline" size={24} color="#ff8c00" />
-                            <Text style={styles.menuText}>Privacy Policy</Text>
+                            <Text style={styles.menuText}>{t('privacyPolicy')}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.menuItem} onPress={changeLanguage}>
+                            <Icon name="language-outline" size={24} color="#ff8c00" />
+                            <Text style={styles.menuText}>{t('translate')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Setting')}>
                             <Icon name="settings-outline" size={24} color="#ff8c00" />
-                            <Text style={styles.menuText}>Settings</Text>
+                            <Text style={styles.menuText}>{t('settings')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
                             <Icon name="log-out-outline" size={24} color="#ff8c00" />
-                            <Text style={styles.menuText}>Log out</Text>
+                            <Text style={styles.menuText}>{t('logout')}</Text>
                         </TouchableOpacity>
                     </View>
                 </>
             ) : (
-                <Text>Loading...</Text>
+                <Text>{t('loading')}</Text>
             )}
         </SafeAreaView>
     );

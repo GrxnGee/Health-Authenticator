@@ -3,6 +3,8 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '../i18'; // Adjust the path as needed
 import HomeScreen from '../App/HomeScreen';
 import BMIScreen from '../App/BMIScreen';
 import Profile from './Setting/Profile';
@@ -17,6 +19,7 @@ import Chats from './../Chat/Chat';
 import Scanner from './../Barcode/Scanner';
 import InfoScanner from './../Barcode/InfoScanner';
 import Setting from './Setting/Setting';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -33,7 +36,8 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
 
-        if (route.name === 'Setting' ||route.name === 'Chats' || route.name === 'InfoScanner' || route.name === 'Home' || route.name === 'Exercise' || route.name === 'BMI' || route.name === 'TodayEx' || route.name === 'FoodInfo' || route.name === 'Food' || route.name === 'ExerciseCat' || route.name === 'MealsPlan' || route.name === 'ExerciseInfo') {
+
+        if (['Setting', 'Chats', 'InfoScanner', 'Home', 'Exercise', 'BMI', 'TodayEx', 'FoodInfo', 'Food', 'ExerciseCat', 'MealsPlan', 'ExerciseInfo'].includes(route.name)) {
           return null; 
         }
 
@@ -77,6 +81,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
 
 function MyTabs() {
   return (
+    <I18nextProvider i18n={i18n}>
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
@@ -89,7 +94,7 @@ function MyTabs() {
         name="Scanner"
         component={Scanner}
         options={{
-          tabBarIcon: ({ color, size }) => <Ionicons name="chatbubble-ellipses-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="qr-code-outline" color={color} size={size} />,
         }}
       />
       <Tab.Screen
@@ -99,6 +104,7 @@ function MyTabs() {
           tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" color={color} size={size} />,
         }}
       />
+
       <Tab.Screen name="Exercise" component={Exercise} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="FoodInfo" component={FoodInfo} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="Food" component={Food} options={{ tabBarButton: () => null }} />
@@ -111,6 +117,7 @@ function MyTabs() {
       <Tab.Screen name="InfoScanner" component={InfoScanner} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="Setting" component={Setting} options={{ tabBarButton: () => null }} />
     </Tab.Navigator>
+    </I18nextProvider>
   );
 }
 
@@ -118,7 +125,6 @@ export default function MainScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <MyTabs />
-      
       <TouchableOpacity 
         style={styles.chatIcon} 
         onPress={() => navigation.navigate("Chats")} 
