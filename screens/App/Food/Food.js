@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Image, ScrollView, TextInput ,TouchableOpacity, FlatList} from 'react-native';
+import { Text, View, StyleSheet, Image, ScrollView, TextInput, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { db } from '../../../Firebase';
@@ -7,13 +7,16 @@ import { Card } from 'react-native-paper';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 export default function Food() {
+  const { t, i18n } = useTranslation(); 
   const [foodItems, setFoodItems] = useState([]);
-  const [categoriesItems, setcategoriesItems] = useState([]);
+  const [categoriesItems, setCategoriesItems] = useState([]);
   const [SearchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const navigation = useNavigation();
+
   useEffect(() => {
     const fetchFoodData = async () => {
       const foodCollection = collection(db, 'food');
@@ -24,7 +27,6 @@ export default function Food() {
       }));
       setFoodItems(foods);
     };
-
     fetchFoodData();
   }, []);
 
@@ -36,9 +38,8 @@ export default function Food() {
         id: doc.id,
         ...doc.data()
       }));
-      setcategoriesItems(categories);
+      setCategoriesItems(categories);
     };
-
     fetchCategoriesData();
   }, []);
 
@@ -70,168 +71,135 @@ export default function Food() {
       setSearchResults(uniqueResults);
     }
   };
-  
+
   const pressFoodpic = (fname) => {
     navigation.navigate('FoodInfo', { fname });
-};
+  };
+
+  // Function to get the correct category name based on the current language
+  const getCategoryName = (category) => {
+    return i18n.language === 'th' && category.CnameTH ? category.CnameTH : category.Cname;
+  };
 
   return (
     <SafeAreaView>
       <ScrollView>
-      <View style={styles.navHeader}>
-        <TouchableOpacity
-          style={styles.homeButton}
-          onPress={() => navigation.navigate('Home')}
-        >
-          <Ionicons name="arrow-back" size={24} color="black" />
-          <Text style={styles.homeButtonText}>Home</Text>
-        </TouchableOpacity>
+        <View style={styles.navHeader}>
+          <TouchableOpacity
+            style={styles.homeButton}
+            onPress={() => navigation.navigate('Home')}
+          >
+            <Ionicons name="arrow-back" size={24} color="black" />
+            <Text style={styles.homeButtonText}>{t('home')}</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.MealsButton}
-          onPress={() => navigation.navigate('MealsPlan')}
-        >
-          <Ionicons name="clipboard" size={24} color="#50A966" />
-          <Text style={styles.MealsButtonText}>Your Plan</Text>
-        </TouchableOpacity>
-
-      </View>
-      <View style={{ marginTop: Constants.statusBarHeight }}>
-        <View style={{ height: 33, marginLeft: 40, marginRight: 40, flexDirection: 'row', alignItems: 'center', backgroundColor: '#397A49', borderRadius: 8, margin:5}}>
-          <Ionicons
-            name="search-sharp"
-            size={20}
-            color="white"
-            style={{ marginLeft: 10 }}
-            onPress={Search}
-          />
-          <TextInput
-            placeholder="SEARCH"
-            style={[styles.textBox, { flex: 1 }]}
-            keyboardType="default"
-            value={SearchText}
-            onChangeText={setSearchText}
-          />
+          <TouchableOpacity
+            style={styles.MealsButton}
+            onPress={() => navigation.navigate('MealsPlan')}
+          >
+            <Ionicons name="clipboard" size={24} color="#50A966" />
+            <Text style={styles.MealsButtonText}>{t('mealplans')}</Text>
+          </TouchableOpacity>
         </View>
 
-        <ScrollView horizontal={true} style={{margin:15 }}>
-          {foodItems.map((food, index) => (
-        <Card key={food.id} style={styles.item} onPress={() => pressFoodpic(food.fname)}>
-              <Image source={{ uri: food.picUrl }} style={{ width: 220, height: 135, borderRadius: 8 }} />
-            </Card>
-          ))}
-        </ScrollView>
+        <View style={{ marginTop: Constants.statusBarHeight }}>
+          <View style={styles.searchContainer}>
+            <Ionicons
+              name="search-sharp"
+              size={20}
+              color="white"
+              style={{ marginLeft: 10 }}
+              onPress={Search}
+            />
+            <TextInput
+              placeholder={t('search')}
+              style={styles.textBox}
+              keyboardType="default"
+              value={SearchText}
+              onChangeText={setSearchText}
+            />
+          </View>
 
-        <View style={{ flexDirection: 'row' }}>
-          <Text style={{ fontWeight: 'bold', fontSize: 18, flex: 1, marginLeft: '5%' }}>Categories</Text>
-          <Ionicons
-            name="ellipsis-horizontal"
-            size={20}
-            color="black"
-            style={{ marginRight: 15, marginTop: 4 }}
-            onPress={Search}
+          <ScrollView horizontal={true} style={{ margin: 15 }}>
+            {foodItems.map((food) => (
+              <TouchableOpacity key={food.id} onPress={() => pressFoodpic(food.fname)}>
+                <Card style={styles.item}>
+                  <Image source={{ uri: food.picUrl }} style={styles.foodImage} />
+                </Card>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{t('categories')}</Text>
+            <Ionicons
+              name="ellipsis-horizontal"
+              size={20}
+              color="black"
+              style={styles.ellipsisIcon}
+              onPress={Search}
+            />
+          </View>
+
+          <ScrollView horizontal={true} style={styles.categoriesContainer}>
+            {categoriesItems.map((category) => (
+              <TouchableOpacity 
+                key={category.id} 
+                onPress={() => { 
+                  setSearchText(category.Cname); // Always use Cname for search
+                  Search(); 
+                }}
+              >
+                <Card style={styles.Category}>
+                  <Image source={{ uri: category.Cpic }} style={styles.categoryImage} />
+                  <Text style={styles.categoryName}>{getCategoryName(category)}</Text>
+                </Card>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{t('recommendedMenu')}</Text>
+            <Ionicons
+              name="ellipsis-horizontal"
+              size={20}
+              color="black"
+              style={styles.ellipsisIcon}
+              onPress={Search}
+            />
+          </View>
+
+          <FlatList
+            data={searchResults.length > 0 ? searchResults : foodItems}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => pressFoodpic(item.fname)}>
+                <Card style={styles.item2}>
+                  <Image source={{ uri: item.picUrl }} style={styles.recommendedImage} />
+                </Card>
+              </TouchableOpacity>
+            )}
+            numColumns={2}
+            columnWrapperStyle={styles.row}
+            ListEmptyComponent={() => (
+              <View style={styles.emptyListContainer}>
+                <Text>{t('noItemsFound')}</Text>
+              </View>
+            )}
           />
         </View>
-        <ScrollView horizontal={true} style={{ flexWrap:'wrap', marginLeft: '2%' }}>
-          {categoriesItems.map((categorie, index) => (
-            <Card key={categorie.id} style={styles.Category}    onPress={() => {setSearchText(categorie.Cname); Search();}}>
-              <Image source={{ uri: categorie.Cpic }} style={{ width: 50, height: 50, borderRadius: 8 }} />
-              <Text style={{ fontWeight: 'bold', fontSize: 12, textAlign: 'center', paddingTop:2}}>{categorie.Cname}</Text>
-            </Card>
-          ))}
-        </ScrollView>
-
-
-        <View style={{ flexDirection: 'row' }}>
-          <Text style={{ fontWeight: 'bold', fontSize: 18, flex: 1, marginLeft: '5%' }}>Recommended Menu</Text>
-          <Ionicons
-            name="ellipsis-horizontal"
-            size={20}
-            color="black"
-            style={{ marginRight: 15, marginTop: 4 }}
-            onPress={Search}
-          />
-        </View>
-
-        <FlatList
-  data={searchResults.length > 0 ? searchResults : foodItems}
-  keyExtractor={(item) => item.id}
-  renderItem={({ item }) => (
-    <Card key={item.id} style={styles.item2} onPress={() => pressFoodpic(item.fname)}>
-      <Image source={{ uri: item.picUrl }} style={{ width: 175, height: 125, borderRadius: 8 }} />
-    </Card>
-  )}
-  numColumns={2}
-  columnWrapperStyle={styles.row}
-  ListEmptyComponent={() => (
-    <View style={{ width: '100%', height: 200, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>No items found</Text>
-    </View>
-  )}
-/>
-      </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-    flex: 1,
+  navHeader: {
     flexDirection: 'row',
-  },
-  item: {
-    width: 220,
-    height: 135,
-    backgroundColor: 'white',
-    justifyContent: 'center',
     alignItems: 'center',
-    margin: 10,
-    borderRadius: 12, 
-    elevation: 3, 
-  },
-  textBox: {
-    fontWeight: 'bold',
-    fontSize: 15,
-    textAlign: 'center',
-    backgroundColor: '#4A9B5D',
-    height: 33,
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
-    marginLeft: 10,
-    paddingRight: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 2,
-    paddingBottom: 0,
-    color: 'white',
-  },
-  scrollContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    padding: 10,
-  },
-  item2: {
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 6, 
-    borderRadius: 12,
-    width: 175,
-    height: 125,
-    elevation: 3,
-  },
-  Category: {
-    width: 55,
-    height: 75,
-    alignItems: 'center',
-    margin: 10,
-    borderRadius: 12,
-    elevation: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 15,  
+    backgroundColor: '#F5F5F5', 
+    elevation: 4,
   },
   homeButton: {
     flexDirection: 'row',
@@ -243,18 +211,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginLeft: 8,
     fontWeight: 'bold',
-  },
-  navHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 15,  
-    backgroundColor: '#F5F5F5', 
-    elevation: 4,
-  },
-  row: {
-    justifyContent: 'space-between',
-    marginHorizontal: 10,
   },
   MealsButton: {
     flexDirection: 'row',
@@ -271,5 +227,105 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     color: '#50A966',
     fontWeight: 'bold',
+  },
+  searchContainer: {
+    height: 33,
+    marginLeft: 40,
+    marginRight: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#397A49',
+    borderRadius: 8,
+    margin: 5,
+  },
+  textBox: {
+    flex: 1,
+    fontWeight: 'bold',
+    fontSize: 15,
+    textAlign: 'center',
+    backgroundColor: '#4A9B5D',
+    height: 33,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+    marginLeft: 10,
+    paddingRight: 20,
+    color: 'white',
+  },
+  item: {
+    width: 220,
+    height: 135,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 10,
+    borderRadius: 12, 
+    elevation: 3, 
+  },
+  foodImage: {
+    width: 220,
+    height: 135,
+    borderRadius: 8,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: '5%',
+    marginRight: '5%',
+  },
+  sectionTitle: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    flex: 1,
+  },
+  ellipsisIcon: {
+    marginTop: 4,
+  },
+  categoriesContainer: {
+    flexWrap: 'wrap',
+    marginLeft: '2%',
+  },
+  Category: {
+    width: 55,
+    height: 75,
+    alignItems: 'center',
+    margin: 10,
+    borderRadius: 12,
+    elevation: 2,
+  },
+  categoryImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+  },
+  categoryName: {
+    fontWeight: 'bold',
+    fontSize: 12,
+    textAlign: 'center',
+    paddingTop: 2,
+  },
+  item2: {
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 6, 
+    borderRadius: 12,
+    width: 175,
+    height: 125,
+    elevation: 3,
+  },
+  recommendedImage: {
+    width: 175,
+    height: 125,
+    borderRadius: 8,
+  },
+  row: {
+    justifyContent: 'space-between',
+    marginHorizontal: 10,
+  },
+  emptyListContainer: {
+    width: '100%',
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

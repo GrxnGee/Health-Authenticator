@@ -1,12 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 export default function ExerciseInfo() {
   const route = useRoute();
-  const navigation = useNavigation(); // Initialize navigation
-  const { Exname, IEx, picUrl, cat } = route.params;
+  const navigation = useNavigation();
+  const { Exname, ExnameTH, IEx, IExTH, picUrl, cat } = route.params;
+  const { i18n } = useTranslation();
+  const [currentExname, setCurrentExname] = useState(Exname);
+  const [currentDescription, setCurrentDescription] = useState(IEx);
+  
+  // Mapping categories to Thai
+  const categoryTranslations = {
+    'Weight Training': 'เวทเทรนนิ่ง',
+    'Stretching': 'การยืดกล้ามเนื้อ',
+    'Cardio': 'คาร์ดิโอ'
+  };
+
+  const [currentCat, setCurrentCat] = useState(cat);
+
+  useEffect(() => {
+    setCurrentExname(i18n.language === 'th' ? (ExnameTH || Exname) : Exname);
+    setCurrentDescription(i18n.language === 'th' ? (IExTH || IEx) : IEx);
+    setCurrentCat(i18n.language === 'th' ? categoryTranslations[cat] || cat : cat);
+  }, [i18n.language, Exname, ExnameTH, IEx, IExTH, cat]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -17,19 +36,17 @@ export default function ExerciseInfo() {
             onPress={() => navigation.navigate('ExerciseCat', { category: cat })}
           >
             <Ionicons name="arrow-back" size={24} color="black" />
-            <Text style={styles.backButtonText}>{cat}</Text>
+            <Text style={styles.backButtonText}>{currentCat}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.categoryPill}>
-            <Text style={styles.categoryText}>{Exname}</Text>
-          </View>
+          <Text style={styles.categoryText}>{currentExname}</Text>
+        </View>
 
         <View style={styles.card}>
-
           <Image source={{ uri: picUrl }} style={styles.image} />
-  
-          <Text style={styles.description}>{IEx}</Text>
+          <Text style={styles.description}>{currentDescription}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -80,7 +97,6 @@ const styles = StyleSheet.create({
     width: '40%', 
     height: '9%', 
     marginLeft: '7%',  
-
   },
   categoryText: {
     fontSize: 16,

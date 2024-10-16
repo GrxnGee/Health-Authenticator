@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { Text, View, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db, auth } from '../../../Firebase';
 import { Card } from 'react-native-paper';
@@ -7,15 +7,20 @@ import { collection, getDoc, query, where, arrayUnion, doc, setDoc, updateDoc, g
 import { useRoute } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 export default function FoodDetails() {
     const [foodItems, setFoodItems] = useState([]);
+    const [loading, setLoading] = useState(true);
     const route = useRoute();
     const { fname } = route.params;
     const user = auth.currentUser;
     const navigation = useNavigation();
+    const { t, i18n } = useTranslation();
+
     useEffect(() => {
         const getFoodData = async () => {
+            setLoading(true);
             try {
                 const foodCollection = collection(db, 'food');
                 const fnameQuery = query(foodCollection, where('fname', '==', fname));
@@ -26,18 +31,18 @@ export default function FoodDetails() {
             } catch (error) {
                 console.error("Error fetching food data: ", error);
                 alert('Failed to fetch food data.');
+            } finally {
+                setLoading(false);
             }
         };
 
         getFoodData();
     }, [fname]);
 
-    const UpdateMeal = async (food) => {
+    const updateMeal = async (food) => {
         const userMealPlanDoc = doc(db, 'mealPlans', user.uid);
-
         try {
             const docSnapshot = await getDoc(userMealPlanDoc);
-
             if (docSnapshot.exists()) {
                 await updateDoc(userMealPlanDoc, {
                     foodItems: arrayUnion(food)
@@ -47,7 +52,6 @@ export default function FoodDetails() {
                     foodItems: [food]
                 });
             }
-
             alert('Added to your meal plan!');
         } catch (error) {
             console.error("Error updating meal plan: ", error);
@@ -55,16 +59,18 @@ export default function FoodDetails() {
         }
     };
 
-    const goBack = () => {
+    const pressAdd = async (food) => {
+        await updateMeal(food);
         navigation.navigate('Food');
     };
 
-    const pressAdd = async (food) => {
-        await UpdateMeal(food);
-        setTimeout(() => {
-            goBack();
-        }, 2000);
-    };
+    const displayFname = (food) => i18n.language === 'th' && food.fnameTH ? food.fnameTH : food.fname;
+    const displayIfood = (food) => i18n.language === 'th' && food.ifoodTH ? food.ifoodTH : food.ifood;
+
+    if (loading) {
+        return <ActivityIndicator size="large" color="#0000ff" />;
+    }
+
     return (
         <SafeAreaView>
             <ScrollView>
@@ -73,35 +79,37 @@ export default function FoodDetails() {
                     onPress={() => navigation.navigate('Food')}
                 >
                     <Ionicons name="arrow-back" size={24} color="black" />
-                    <Text style={styles.homeButtonText}>Food List</Text>
+                    <Text style={styles.homeButtonText}>{t('FoodList')}</Text>
                 </TouchableOpacity>
 
                 {foodItems.map((food) => (
-                    <View key={food.id} style={{ alignItems: 'center' }}>
+                    <View key={food.id} style={styles.foodContainer}>
                         <View style={styles.fname}>
-                            <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'white', textAlign: 'center' }}>{food.fname}</Text>
+                            <Text style={styles.foodName}>
+                                {displayFname(food)}
+                            </Text>
                         </View>
-                        <Card style={styles.cardoutside}>
-                            <View style={{ alignItems: 'center' }}>
-                                <Image source={{ uri: food.picUrl }} style={{ width: 200, height: 200, borderRadius: 8, margin: 10 }} />
+                        <Card style={styles.cardOutside}>
+                            <View style={styles.cardContent}>
+                                <Image source={{ uri: food.picUrl }} style={styles.foodImage} />
+                                <Card style={styles.cardInside}>
+                                    <Text style={styles.ingredientText}>{t('Ingredient')}</Text>
+                                    <Text style={styles.ingredientDetails}>
+                                        {displayIfood(food)}
+                                    </Text>
 
-                                <Card style={styles.cardinside}>
-                                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#50A966', textAlign: 'center' }}>Ingredient</Text>
-                                    <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#453131', textAlign: 'left' }}>{food.ifood}</Text>
-
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 10 }}>
-                                        <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#FFC85C', textAlign: 'center', marginRight: 5 }}>{food.cal}</Text>
-                                        <Text style={{ fontSize: 17, fontWeight: 'bold', color: 'black', textAlign: 'center' }}>Calorie</Text>
+                                    <View style={styles.calorieContainer}>
+                                        <Text style={styles.calorieCount}>{food.cal}</Text>
+                                        <Text style={styles.calorieLabel}>{t('Calorie')}</Text>
                                     </View>
-
                                 </Card>
-                                <View style={{ margin: 20 }}>
+
+                                <View style={styles.buttonContainer}>
                                     <TouchableOpacity style={styles.button} onPress={() => pressAdd(food)}>
-                                        <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'white', fontSize: 17 }}>Add to meal</Text>
+                                        <Text style={styles.buttonText}>{t('Addtomeal')}</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
-
                         </Card>
                     </View>
                 ))}
@@ -111,7 +119,10 @@ export default function FoodDetails() {
 }
 
 const styles = StyleSheet.create({
-    cardoutside: {
+    foodContainer: {
+        alignItems: 'center',
+    },
+    cardOutside: {
         height: 630,
         width: 350,
         backgroundColor: '#FFFFFF',
@@ -119,7 +130,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         alignItems: 'center',
     },
-    cardinside: {
+    cardInside: {
         height: 295,
         width: 270,
         backgroundColor: '#F0F0F0',
@@ -127,12 +138,13 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         alignItems: 'center',
     },
+    buttonContainer: {
+        margin: 20,
+    },
     button: {
         height: 50,
         width: 115,
         backgroundColor: '#387647',
-        marginLeft: 40,
-        marginRight: 40,
         borderRadius: 50,
         justifyContent: 'center',
         marginTop: 5,
@@ -145,12 +157,64 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 18,
         width: 151,
         height: 40,
-        marginRight: '35%'
+        marginRight: '35%',
     },
     FoodButton: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 10,
-        marginLeft: 10
-    }
+        marginLeft: 10,
+    },
+    foodName: {
+        fontSize: 25,
+        fontWeight: 'bold',
+        color: 'white',
+        textAlign: 'center',
+    },
+    cardContent: {
+        alignItems: 'center',
+    },
+    foodImage: {
+        width: 200,
+        height: 200,
+        borderRadius: 8,
+        margin: 10,
+    },
+    ingredientText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#50A966',
+        textAlign: 'center',
+    },
+    ingredientDetails: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#453131',
+        textAlign: 'left',
+    },
+    calorieContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 10,
+    },
+    calorieCount: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#FFC85C',
+        textAlign: 'center',
+        marginRight: 5,
+    },
+    calorieLabel: {
+        fontSize: 17,
+        fontWeight: 'bold',
+        color: 'black',
+        textAlign: 'center',
+    },
+    buttonText: {
+        fontWeight: 'bold',
+        textAlign: 'center',
+        color: 'white',
+        fontSize: 17,
+    },
 });

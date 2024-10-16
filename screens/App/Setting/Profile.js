@@ -49,7 +49,7 @@ export default function Profile() {
         i18n.changeLanguage(newLanguage);
         setCurrentLanguage(newLanguage);
         
-        // Force update on Exercise screens
+
         navigation.setParams({ language: newLanguage });
         
 

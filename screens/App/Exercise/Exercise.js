@@ -9,7 +9,8 @@ export default function ExerciseCategories() {
   const { t } = useTranslation();
 
   const navigateToCategory = (category) => {
-    navigation.navigate('ExerciseCat', { category });
+
+    navigation.navigate('ExerciseCat', { category: category });
   };
 
   return (
@@ -25,7 +26,7 @@ export default function ExerciseCategories() {
       </View>
       <Text style={styles.header}>{t('exerciseCategories')}</Text>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory(t('weightTraining'))}>
+        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory('Weight Training')}>
           <ImageBackground
             source={require('../../../assets/Exercise/Weight Training.jpg')} 
             style={styles.image}
@@ -34,7 +35,7 @@ export default function ExerciseCategories() {
             <Text style={styles.cardText}>{t('weightTraining')}</Text>
           </ImageBackground>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory(t('stretching'))}>
+        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory('Stretching')}>
           <ImageBackground
             source={require('../../../assets/Exercise/Stretching.jpg')} 
             style={styles.image}
@@ -43,7 +44,7 @@ export default function ExerciseCategories() {
             <Text style={styles.cardText}>{t('stretching')}</Text>
           </ImageBackground>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory(t('cardio'))}>
+        <TouchableOpacity style={styles.card} onPress={() => navigateToCategory('Cardio')}>
           <ImageBackground
             source={require('../../../assets/Exercise/Cardio.jpg')} 
             style={styles.image}

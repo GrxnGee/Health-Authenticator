@@ -4,14 +4,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { db, auth } from '../../../Firebase';
 import { Ionicons } from '@expo/vector-icons';
 import { doc, onSnapshot, updateDoc, arrayUnion, deleteDoc, getDoc, setDoc } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 
 export default function MealsPlan({ navigation }) {
+    const { t, i18n } = useTranslation();
     const user = auth.currentUser;
     const [mealPlan, setMealPlan] = useState([]);
     const [userInfo, setUserInfo] = useState(null);
     const [currentDateCal, setCurrentDateCal] = useState([]);
     const [totalCalories, setTotalCalories] = useState(0);
     const [totalUserFoodCalories, settotalUserFoodCalories] = useState(0);
+
     useEffect(() => {
         if (user) {
             const userDocRef = doc(db, "users", user.uid);
@@ -19,17 +22,16 @@ export default function MealsPlan({ navigation }) {
                 if (doc.exists()) {
                     setUserInfo(doc.data());
                 } else {
-                    Alert.alert('Error', 'No such document!');
+                    Alert.alert(t('error'), t('noSuchDocument'));
                 }
             }, (error) => {
                 console.error("Error fetching user data: ", error);
-                Alert.alert('Error', 'Failed to fetch user data.');
+                Alert.alert(t('error'), t('failedToFetchUserData'));
             });
 
             return () => unsubscribe();
         }
     }, [user]);
-
 
     useEffect(() => {
         if (user) {
@@ -47,9 +49,6 @@ export default function MealsPlan({ navigation }) {
             return () => unsubscribe();
         }
     }, [user]);
-
-
-
 
     useEffect(() => {
         if (user) {
@@ -80,7 +79,6 @@ export default function MealsPlan({ navigation }) {
         }
     }, [user]);
 
-
     const UpdateUserMeal = async (food) => {
         const userMealPlanDoc = doc(db, 'users', user.uid);
         const userFoodDoc = doc(db, 'UserFood', user.uid);
@@ -92,13 +90,13 @@ export default function MealsPlan({ navigation }) {
             const userTDEE = userInfo?.tdee || 0;
 
             if (food == 0) {
-                Alert.alert('Warning', 'Please add food to your meal.');
+                Alert.alert(t('warning'), t('pleaseAddFood'));
                 return;
             }
 
             console.log(food);
             if (totalUserFoodCalories + totalCalories > userTDEE) {
-                Alert.alert('Warning', 'Total calories exceed your daily recommended intake.');
+                Alert.alert(t('warning'), t('caloriesExceedIntake'));
                 return;
             }
             if (docSnapshot.exists()) {
@@ -119,7 +117,7 @@ export default function MealsPlan({ navigation }) {
                     navigation.goBack();
                 }, 2000);
 
-                alert('Added to your meal plan!');
+                alert(t('addedToMealPlan'));
             } else {
                 await setDoc(userMealPlanDoc, {
                     food: totalCalories,
@@ -129,15 +127,13 @@ export default function MealsPlan({ navigation }) {
                     food: mealPlan,
                     date: currentDate,
                 });
-                alert('Added to your meal plan!');
+                alert(t('addedToMealPlan'));
             }
         } catch (error) {
             console.error("Error updating meal plan: ", error);
-            alert('Failed to add food item to your meal plan.');
+            alert(t('failedToAddFood'));
         }
     };
-
-
 
     const deleteFoodItem = async (foodItemId) => {
         const mealPlanDoc = doc(db, 'mealPlans', user.uid);
@@ -157,7 +153,7 @@ export default function MealsPlan({ navigation }) {
             }
         } catch (error) {
             console.error("Error deleting food item: ", error);
-            alert('Failed to delete food item.');
+            alert(t('failedToDeleteFood'));
         }
     };
 
@@ -175,12 +171,14 @@ export default function MealsPlan({ navigation }) {
             }
         } catch (error) {
             console.error("Error deleting meal plan: ", error);
-            alert('Failed to delete current meal plan.');
+            alert(t('failedToDeleteMealPlan'));
         }
     };
 
-    console.log("Current totalCalories:", totalCalories);
-    console.log("Current totalUserFoodCalories:", totalUserFoodCalories);
+    const getFoodName = (item) => {
+        return i18n.language === 'th' && item.fnameTH ? item.fnameTH : item.fname;
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -189,12 +187,12 @@ export default function MealsPlan({ navigation }) {
                     onPress={() => navigation.navigate('Food')}
                 >
                     <Ionicons name="arrow-back" size={24} color="black" />
-                    <Text style={styles.homeButtonText}>Food List</Text>
+                    <Text style={styles.homeButtonText}>{t('FoodList')}</Text>
                 </TouchableOpacity>
 
                 <View style={styles.header}>
-                    <Text style={styles.headerGreenText}>Meal</Text>
-                    <Text style={styles.headerBlackText}>Food List</Text>
+                    <Text style={styles.headerGreenText}>{t('meal')}</Text>
+                    <Text style={styles.headerBlackText}>{t('Food')}</Text>
                 </View>
 
                 {Array.isArray(mealPlan) && mealPlan.length > 0 ? (
@@ -203,17 +201,17 @@ export default function MealsPlan({ navigation }) {
                             <View style={styles.Foodcard}>
                                 <View style={styles.topRow}>
                                     <Image source={{ uri: item.picUrl }} style={styles.cardImage} />
-                                    <Text style={styles.cardText}>{item.fname}</Text>
+                                    <Text style={styles.cardText}>{getFoodName(item)}</Text>
                                 </View>
-                                <Text style={styles.calText}>{item.cal} Calories</Text>
+                                <Text style={styles.calText}>{item.cal} {t('calories')}</Text>
                                 <TouchableOpacity onPress={() => deleteFoodItem(item.id)} style={styles.deleteButton}>
-                                    <Text style={styles.deleteButtonText}>Delete</Text>
+                                    <Text style={styles.deleteButtonText}>{t('delete')}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
                     ))
                 ) : (
-                    <Text style={styles.noMealsText}>No meals found in your plan.</Text>
+                    <Text style={styles.noMealsText}>{t('noMealsFound')}</Text>
                 )}
 
                 <View style={styles.calculateCal}>
@@ -223,28 +221,29 @@ export default function MealsPlan({ navigation }) {
                                 {mealPlan.map((item, index) => (
                                     <View key={item.id || index} style={styles.CalcardContainer}>
                                         <View style={styles.CalRow}>
-                                            <Text style={styles.itemName}>{item.fname}</Text>
-                                            <Text style={styles.itemCal}>{item.cal}</Text>
-                                            <Text style={styles.itemCalories}>Calories</Text>
+                                            <Text style={styles.itemName}>{getFoodName(item)}</Text>
+
+                                            <Text style={styles.itemCalories}>{item.cal} {t('calories')}</Text>
                                         </View>
                                     </View>
                                 ))}
-                                <Text style={styles.totalCaloriesText}>Total : {totalCalories} Calories</Text>
+                                <Text style={styles.totalCaloriesText}>{t('total')} : {totalCalories} {t('calories')}</Text>
                             </>
                         ) : (
-                            <Text>No items found</Text>
+                            <Text>{t('noItemsFound')}</Text>
                         )}
                     </View>
                 </View>
                 <View style={{ margin: 20 }}>
                     <TouchableOpacity style={styles.button} onPress={() => PressSaveMealCal(totalCalories)}>
-                        <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'white', fontSize: 17 }}>Add to meal</Text>
+                        <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'white', fontSize: 17 }}>{t('addToMeal')}</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
         </SafeAreaView>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {

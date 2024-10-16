@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
@@ -10,23 +10,55 @@ export default function ExerciseCat() {
   const navigation = useNavigation();
   const { category } = route.params;
   const [exercises, setExercises] = useState([]);
+  const [loading, setLoading] = useState(true);
   const db = getFirestore();
   const { t, i18n } = useTranslation();
 
-  useEffect(() => {
-    const fetchExercises = async () => {
-      const collectionName = i18n.language === 'en' ? 'exercise' : 'exerciseEng';
-      const q = query(collection(db, collectionName), where('cat', '==', category));
-      const querySnapshot = await getDocs(q);
-      const fetchedExercises = [];
-      querySnapshot.forEach((doc) => {
-        fetchedExercises.push(doc.data());
+  // Mapping categories to Thai
+  const categoryTranslations = {
+    'Weight Training': 'เวทเทรนนิ่ง',
+    'Stretching': 'การยืดกล้ามเนื้อ',
+    'Cardio': 'คาร์ดิโอ'
+  };
+
+  // Get the category in the current language
+  const localizedCategory = i18n.language === 'th' ? categoryTranslations[category] || category : category;
+
+  const fetchExercises = useCallback(async () => {
+    console.log('Fetching exercises. Current language:', i18n.language);
+    setLoading(true);
+
+    const q = query(collection(db, 'exercise'), where('cat', '==', category));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.log('No exercises found for this category');
+    } else {
+      const fetchedExercises = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          ...data,
+          id: doc.id,
+          Exname: i18n.language === 'th' ? data.ExnameTH || data.Exname : data.Exname,
+          IEx: i18n.language === 'th' ? data.IExTH || data.IEx : data.IEx,
+        };
       });
       setExercises(fetchedExercises);
-    };
-
-    fetchExercises();
+    }
+    setLoading(false);
   }, [category, i18n.language]);
+
+  useEffect(() => {
+    console.log('Language changed to:', i18n.language);
+    fetchExercises();
+  }, [i18n.language, fetchExercises]);
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log('Screen focused');
+      fetchExercises();
+    }, [fetchExercises])
+  );
 
   const renderExercise = ({ item }) => (
     <TouchableOpacity
@@ -47,6 +79,10 @@ export default function ExerciseCat() {
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return <View style={styles.container}><Text>Loading...</Text></View>;
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.navHeader}>
@@ -58,18 +94,22 @@ export default function ExerciseCat() {
           <Text style={styles.homeButtonText}>{t('exercise')}</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.header}>{t(category.toLowerCase())}</Text>
-      <FlatList
-        data={exercises}
-        renderItem={renderExercise}
-        keyExtractor={(item, index) => index.toString()}
-        numColumns={2}
-        contentContainerStyle={styles.grid}
-      />
+      <Text style={styles.header}>{localizedCategory}</Text>
+
+      {exercises.length > 0 ? (
+        <FlatList
+          data={exercises}
+          renderItem={renderExercise}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          contentContainerStyle={styles.grid}
+        />
+      ) : (
+        <Text style={styles.noExercisesText}>{t('noExercisesAvailable')}</Text>
+      )}
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -131,5 +171,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingHorizontal: 0, 
     paddingVertical: 10, 
+  },
+  noExercisesText: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 20,
+    color: 'rgba(0, 0, 0, 0.5)',
   },
 });

@@ -38,7 +38,7 @@ const AdminExercise = ({ navigation }) => {
     }
 
     try {
-      const docRef = await addDoc(collection(db, "exercise"), {
+      const docRef = await addDoc(collection(db, "exerciseTH"), {
         picUrl: picUrl,
         Exname: Exname,
         IEx: IEx,
