@@ -6,10 +6,12 @@ import { db, auth } from '../../Firebase';
 import { doc, updateDoc, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
 import { Picker } from '@react-native-picker/picker';
 import Constants from 'expo-constants';
+import { useTranslation } from 'react-i18next';
 
 export default function InfoScreen({ route }) {
     const navigation = useNavigation();
     const user = auth.currentUser;
+    const { t } = useTranslation(); 
     const [userInfo, setUserInfo] = useState(null);
 
     const [weight, setWeight] = useState('');
@@ -38,16 +40,16 @@ export default function InfoScreen({ route }) {
     }, [user]);
 
     const activityOptions = [
-        { label: 'Little to no exercise', value: '1.2' },
-        { label: 'Light exercise', value: '1.375' },
-        { label: 'Moderate exercise', value: '1.55' },
-        { label: 'Heavy physical exercise', value: '1.725' },
-        { label: 'Very Heavy physical exercise', value: '1.9' },
+        { label: t('littleToNoExercisez'), value: '1.2' },
+        { label: t('lightExercise'), value: '1.375' },
+        { label: t('moderateExercise'), value: '1.55' },
+        { label: t('heavyExercise'), value: '1.725' },
+        { label: t('veryHeavyExercise'), value: '1.9' },
     ];
 
     const calculateBMIBMR = async () => {
         if (!height || !weight || !activityLevel) {
-            Alert.alert('Error', 'Please fill in all fields.');
+            Alert.alert(t('error'), t('pleaseFilllAllFields'));
             return;
         }
     
@@ -57,13 +59,12 @@ export default function InfoScreen({ route }) {
         const parsedActivityLevel = parseFloat(activityLevel);
     
         if (isNaN(parsedWeight) || isNaN(parsedHeight) || isNaN(parsedActivityLevel)) {
-            Alert.alert('Error', 'Invalid input values.');
+            Alert.alert(t('error'), t('invalidInputValues'));
             return;
         }
     
         let bmi = parsedWeight / (heightInMeters ** 2);
     
-
         const currentDate = new Date();
         const birthDate = new Date(userInfo.birthdate.replace(/\//g, '-'));
         console.log("Birthdate from userInfo:", userInfo.birthdate);
@@ -75,7 +76,6 @@ export default function InfoScreen({ route }) {
         }
         console.log("Age:", age);
     
-       console.log(age);
         let bmr;
         if (gender === 'Male') {
             bmr = 66 + (13.7 * parsedWeight) + (5 * parsedHeight) - (6.8 * age);
@@ -113,12 +113,11 @@ export default function InfoScreen({ route }) {
 
             const amiDocRef = doc(db, "bmi", user.uid);
             const currentDate = new Date();
-            currentDate.setHours(0, 0, 0, 0); // Set time to midnight to compare only the date
+            currentDate.setHours(0, 0, 0, 0);
             
             const docSnap = await getDoc(amiDocRef);
             
             if (!docSnap.exists()) {
-              // If document doesn't exist, create a new one with today's data
               await setDoc(amiDocRef, {
                 exercises: [{
                   weight: parsedWeight,
@@ -129,19 +128,16 @@ export default function InfoScreen({ route }) {
             } else {
               const existingData = docSnap.data().exercises || [];
             
-              // Check if an entry for the current day already exists
               const existingIndex = existingData.findIndex(exercise => {
                 const exerciseDay = exercise.day.toDate ? exercise.day.toDate() : new Date(exercise.day);
-                exerciseDay.setHours(0, 0, 0, 0); // Normalize time to midnight for comparison
-                return exerciseDay.getTime() === currentDate.getTime(); // Compare only the date
+                exerciseDay.setHours(0, 0, 0, 0);
+                return exerciseDay.getTime() === currentDate.getTime();
               });
             
               if (existingIndex !== -1) {
-                // If an entry for the current day exists, update it
                 existingData[existingIndex].weight = parsedWeight;
                 existingData[existingIndex].height = parsedHeight;
               } else {
-                // If no entry for the current day exists, add a new one
                 existingData.push({
                   weight: parsedWeight,
                   height: parsedHeight,
@@ -152,38 +148,38 @@ export default function InfoScreen({ route }) {
               await updateDoc(amiDocRef, { exercises: existingData });
             }
         
-            alert("Weight and height data processed successfully!");
+            alert(t('dataProcessedSuccessfully'));
           } catch (error) {
             console.error("Error processing weight and height data: ", error);
-            alert("Failed to process weight and height data.");
+            alert(t('failedToProcessData'));
           }
         };
         
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={{ marginTop: Constants.statusBarHeight }}>
-                <Text style={styles.bmiText}>BMI</Text>
+                <Text style={styles.bmiText}>{t('BMI')}</Text>
 
                 <View style={styles.card}>
                     <TextInput
-                        placeholder="Height"
+                        placeholder={t('height')}
                         style={styles.textBox}
                         keyboardType="numeric"
                         value={height}
                         onChangeText={setHeight}
                     />
-                    <Text style={styles.unitText}>CM</Text>
+                    <Text style={styles.unitText}>{t('cm')}</Text>
                 </View>
 
                 <View style={styles.card}>
                     <TextInput
-                        placeholder="Weight"
+                        placeholder={t('weight')}
                         style={styles.textBox}
                         keyboardType="numeric"
                         value={weight}
                         onChangeText={setWeight}
                     />
-                    <Text style={styles.unitText}>KG</Text>
+                    <Text style={styles.unitText}>{t('kg')}</Text>
                 </View>
 
                 <View style={styles.pickerView}>
@@ -199,7 +195,7 @@ export default function InfoScreen({ route }) {
                 </View>
 
                 <TouchableOpacity style={styles.button} onPress={calculateBMIBMR}>
-                    <Text style={styles.buttonText}>Calculate</Text>
+                    <Text style={styles.buttonText}>{t('calculate')}</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

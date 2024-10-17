@@ -6,9 +6,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import Suggest from "../../../component/suggest";
-
+import { useTranslation } from 'react-i18next';
 
 const TodayEx = () => {
+  const { t, i18n } = useTranslation();
   const [hours, setHours] = useState("");
   const [category, setCategory] = useState(null);
   const [exerciseTypeId, setExerciseTypeId] = useState(null);
@@ -22,12 +23,11 @@ const TodayEx = () => {
   const [userBody, setUserBody] = useState(null);
 
   const categoryOptions = {
-    A: "Weight Training",
-    B: "Stretching",
-    C: "Cardio"
+    A: t("Weight Training"),
+    B: t("Stretching"),
+    C: t("Cardio")
   };
 
-  
   const fetchExercisesByCategory = async (categoryName) => {
     const q = query(collection(db, "exercise"), where("cat", "==", categoryName));
     const querySnapshot = await getDocs(q);
@@ -53,9 +53,9 @@ const TodayEx = () => {
     return () => unsubscribe();
   }, []);
 
-  // Function to calculate calories using MET, weight, and hours
+  
   const calculateCalories = (ExMET, weight, hours) => {
-    return parseFloat(ExMET) * weight * hours;  // Ensure MET is converted to a number
+    return parseFloat(ExMET) * weight * hours; 
   };
 
   const handleSubmit = async () => {
@@ -63,7 +63,7 @@ const TodayEx = () => {
       const todayExDocRef = doc(db, "todayex", user.uid);
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
-      const caloriesBurned = calculateCalories(exerciseType.ExMet, userWeight, hours);  // Use Met from Firestore
+      const caloriesBurned = calculateCalories(exerciseType.ExMet, userWeight, hours);  
 
       try {
         const docSnap = await getDoc(todayExDocRef);
@@ -71,7 +71,7 @@ const TodayEx = () => {
           await setDoc(todayExDocRef, {
             exercises: [{
               hours: hours,
-              type: exerciseType.Exname,
+              type:exerciseType.Exname,
               cal: caloriesBurned,
               day: currentDate,
             }],
@@ -86,27 +86,26 @@ const TodayEx = () => {
           });
           await updateDoc(todayExDocRef, { exercises });
         }
-        alert("Exercise data processed successfully!");
+        alert(t("Exercise data processed successfully!"));
       } catch (error) {
         console.error("Error processing exercise data: ", error);
-        alert("Failed to process exercise data.");
+        alert(t("Failed to process exercise data."));
       }
     } else {
-      alert("Please ensure all fields are filled and try again.");
-
+      alert(t("Please ensure all fields are filled and try again."));
     }
   };
 
   const goBack = () => {
     navigation.navigate('Home');
-};
+  };
 
-const pressAdd = async () => {
+  const pressAdd = async () => {
     await handleSubmit();
     setTimeout(() => {
-        goBack();
+      goBack();
     }, 2000);
-};
+  };
 
   return (
     <View style={styles.container}>
@@ -117,25 +116,24 @@ const pressAdd = async () => {
           onPress={() => navigation.navigate("Home")}
         >
           <Ionicons name="arrow-back" size={24} color="black" />
-          <Text style={styles.homeButtonText}>Home</Text>
+          <Text style={styles.homeButtonText}>{t("home")}</Text>
         </TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <Text>Enter Today's Exercise Data</Text>
+        <Text>{t("entertoday")}</Text>
         <TextInput
           style={styles.input}
           onChangeText={setHours}
           value={hours}
-          placeholder="Hours exercised"
+          placeholder={t("HoursEx")}
           placeholderTextColor="#aaa"
           keyboardType="numeric"
         />
 
-        {/* Main Category Picker */}
         <View style={styles.pickerWrapper}>
           <TouchableOpacity onPress={() => setShowCategoryPicker(!showCategoryPicker)}>
             <Text style={styles.pickerText}>
-              {category ? categoryOptions[category] : "Select a Category"}
+              {category ? categoryOptions[category] : t("SelectaCategory")}
             </Text>
           </TouchableOpacity>
           {showCategoryPicker && (
@@ -150,19 +148,18 @@ const pressAdd = async () => {
                 fetchExercisesByCategory(categoryOptions[itemValue]);
               }}
             >
-              <Picker.Item label="Weight Training" value="A" />
-              <Picker.Item label="Stretching" value="B" />
-              <Picker.Item label="Cardio" value="C" />
+              <Picker.Item label={t("weightTraining")} value="A" />
+              <Picker.Item label={t("stretching")} value="B" />
+              <Picker.Item label={t("cardio")} value="C" />
             </Picker>
           )}
         </View>
-
 
         {category && exercises.length > 0 && (
           <View style={styles.pickerWrapper}>
             <TouchableOpacity onPress={() => setShowExercisePicker(!showExercisePicker)}>
               <Text style={styles.pickerText}>
-                {exerciseType ? exerciseType.Exname : "Select Exercise Type"}
+                {exerciseType ? (i18n.language === 'th' && exerciseType.ExnameTH ? exerciseType.ExnameTH : exerciseType.Exname) : t("selectEx")}
               </Text>
             </TouchableOpacity>
             {showExercisePicker && (
@@ -172,18 +169,18 @@ const pressAdd = async () => {
                 onValueChange={(itemValue) => {
                   setExerciseTypeId(itemValue);
                   setExerciseType(exercises.find(exercise => exercise.id === itemValue));
-                  setShowExercisePicker(false); // Close exercise type picker
+                  setShowExercisePicker(false); 
                 }}
               >
                 {exercises.map((exercise) => (
-                  <Picker.Item key={exercise.id} label={exercise.Exname} value={exercise.id} />
+                  <Picker.Item key={exercise.id} label={i18n.language === 'th' && exercise.ExnameTH ? exercise.ExnameTH : exercise.Exname} value={exercise.id} />
                 ))}
               </Picker>
             )}
           </View>
         )}
 
-        <Button title="Submit" onPress={pressAdd} />
+        <Button title={t("Submit")} onPress={pressAdd} />
         {userBody && <Suggest userBody={userBody} />}
       </ScrollView>
     </View>
@@ -255,4 +252,3 @@ const styles = StyleSheet.create({
 });
 
 export default TodayEx;
-

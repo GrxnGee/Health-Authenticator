@@ -13,13 +13,15 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { db, auth } from "../../Firebase";
 import { doc, getDoc, updateDoc, setDoc, arrayUnion } from "firebase/firestore";
+import { useTranslation } from "react-i18next";
 
 const Barcode = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { foodData, imageUri } = route.params; 
+  const { foodData } = route.params; 
   const [loading, setLoading] = useState(false); 
   const user = auth.currentUser;
+  const { t } = useTranslation();
 
   const UpdateMeal = async (food) => {
     const userMealPlanDoc = doc(db, "mealPlans", user.uid);
@@ -29,35 +31,33 @@ const Barcode = () => {
       setLoading(true);
 
       if (docSnapshot.exists()) {
-        // Update existing meal plan
         await updateDoc(userMealPlanDoc, {
           foodItems: arrayUnion(food),
         });
       } else {
-
         await setDoc(userMealPlanDoc, {
           foodItems: [food],
         });
       }
 
-      Alert.alert("Success", "Food item added to your meal plan!");
+      Alert.alert(t('success'), t('foodItemAdded'));
     } catch (error) {
       console.error("Error updating meal plan: ", error);
-      Alert.alert("Error", "Failed to add food item to your meal plan.");
-    } finally {
+      Alert.alert(t('error'), t('failedToAddFoodItem')); 
       setLoading(false);
     }
   };
 
   const pressAdd = async () => {
     const foodToAdd = {
-    fname: foodData.product_name,
+      fname: foodData.product_name,
       cal: foodData.nutriments?.["energy-kcal_serving"] || "N/A",
       picUrl: foodData.image_url,
     };
     
     await UpdateMeal(foodToAdd);
   };
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -73,7 +73,7 @@ const Barcode = () => {
             }
           >
             <Ionicons name="arrow-back" size={24} color="black" />
-            <Text style={styles.backButtonText}>Scanner</Text>
+            <Text style={styles.backButtonText}>{t('scanner')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -87,52 +87,46 @@ const Barcode = () => {
           )}
 
           <Text style={styles.description}>
-            ยี่ห้อ: {foodData.brands ? foodData.brands : "ไม่พบชื่อสินค้า"}
+            {t('brand')}: {foodData.brands ? foodData.brands : t('noProductName')}
           </Text>
           <Text style={styles.description}>
-            ชื่อสินค้า:{" "}
-            {foodData.product_name ? foodData.product_name : "ไม่พบชื่อสินค้า"}
+            {t('productName')}: {foodData.product_name ? foodData.product_name : t('noProductName')}
           </Text>
 
           <Text style={styles.description}>
-            พลังงาน:{" "}
-            {foodData.nutriments?.["energy-kcal_serving"]
+            {t('energy')}: {foodData.nutriments?.["energy-kcal_serving"]
               ? `${foodData.nutriments["energy-kcal_serving"]} kcal`
-              : "ไม่พบข้อมูล"}
+              : t('noData')}
           </Text>
 
           <Text style={styles.description}>
-            น้ำตาล:{" "}
-            {foodData.nutriments?.sugars
+            {t('sugar')}: {foodData.nutriments?.sugars
               ? `${foodData.nutriments.sugars} g`
-              : "ไม่พบข้อมูล"}
+              : t('noData')}
           </Text>
           <Text style={styles.description}>
-            ไขมัน:{" "}
-            {foodData.nutriments?.fat
+            {t('fat')}: {foodData.nutriments?.fat
               ? `${foodData.nutriments.fat} g`
-              : "ไม่พบข้อมูล"}
+              : t('noData')}
           </Text>
           <Text style={styles.description}>
-            โปรตีน:{" "}
-            {foodData.nutriments?.proteins
+            {t('protein')}: {foodData.nutriments?.proteins
               ? `${foodData.nutriments.proteins} g`
-              : "ไม่พบข้อมูล"}
+              : t('noData')}
           </Text>
-
-          
         </View>
-        <View style={{ margin: 20 , alignItems: "center",}}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={pressAdd}
-              disabled={loading}
-            >
-              <Text style={styles.buttonText}>
-                {loading ? "Adding..." : "Add to meal"}
-              </Text>
-            </TouchableOpacity>
-          </View>
+        
+        <View style={{ margin: 20, alignItems: "center" }}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={pressAdd}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? t('adding') : t('addToMeal')}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

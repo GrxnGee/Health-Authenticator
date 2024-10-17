@@ -4,12 +4,14 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons'; 
+import { useTranslation } from 'react-i18next';
 
 const BarcodeScannerScreen = () => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [foodData, setFoodData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const navigation = useNavigation();
 
@@ -36,11 +38,11 @@ const BarcodeScannerScreen = () => {
         setFoodData(data.product);
         navigation.navigate('InfoScanner', { foodData: data.product });
       } else {
-        alert("ไม่พบข้อมูลอาหาร");
+        alert(t('noFoodDataFound'));
         setFoodData(null);
       }
     } catch (error) {
-      alert("เกิดข้อผิดพลาดในการดึงข้อมูล");
+      alert(t('errorFetchingData'));
       setFoodData(null);
     } finally {
       setLoading(false);
@@ -56,17 +58,16 @@ const BarcodeScannerScreen = () => {
   };
 
   if (hasPermission === null) {
-    return <Text style={styles.text}>กำลังขอสิทธิ์การเข้าถึงกล้อง...</Text>;
+    return <Text style={styles.text}>{t('requestingCameraPermission')}</Text>;
   }
   if (hasPermission === false) {
-    return <Text style={styles.text}>ไม่สามารถเข้าถึงกล้องได้</Text>;
+    return <Text style={styles.text}>{t('cameraAccessDenied')}</Text>;
   }
 
   return (
     <View style={styles.container}>
 
-      <Text style={styles.header}>BarcodeScanner</Text>
-
+      <Text style={styles.header}>{t('barcodeScanner')}</Text>
 
       <View style={styles.scannerContainer}>
         <BarCodeScanner
@@ -75,10 +76,9 @@ const BarcodeScannerScreen = () => {
         />
       </View>
 
-      {loading && <Text style={styles.text}>กำลังโหลดข้อมูล...</Text>}
-      {!foodData && !loading && <Text style={styles.text}>สแกนบาร์โค้ดเพื่อดูข้อมูลอาหาร</Text>}
+      {loading && <Text style={styles.text}>{t('loadingData')}</Text>}
+      {!foodData && !loading && <Text style={styles.text}>{t('scanBarcodeForFoodInfo')}</Text>}
       
-     
       <TouchableOpacity
         style={styles.loadingIcon}
         onPress={() =>
@@ -139,8 +139,6 @@ const styles = StyleSheet.create({
     color: 'rgba(0, 128, 0, 0.7)',         
     textAlign: 'center',       
     paddingVertical: 15,      
-      
-
     width: '100%', 
     marginTop: 40, 
   },

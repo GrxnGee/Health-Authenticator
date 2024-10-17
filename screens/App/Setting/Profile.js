@@ -6,8 +6,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { signOut } from "firebase/auth";
-
-import Setting from './Setting';
+import ToggleSwitch from 'toggle-switch-react-native'; 
 
 export default function Profile() {
     const { t, i18n } = useTranslation();
@@ -44,15 +43,10 @@ export default function Profile() {
             });
     };
 
-    const changeLanguage = () => {
-        const newLanguage = currentLanguage === 'en' ? 'th' : 'en';
+    const changeLanguage = (isEnabled) => {
+        const newLanguage = isEnabled ? 'th' : 'en';
         i18n.changeLanguage(newLanguage);
         setCurrentLanguage(newLanguage);
-        
-
-        navigation.setParams({ language: newLanguage });
-        
-
         global.currentLanguage = newLanguage;
     };
 
@@ -75,10 +69,7 @@ export default function Profile() {
                             <Icon name="lock-closed-outline" size={24} color="#ff8c00" />
                             <Text style={styles.menuText}>{t('privacyPolicy')}</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.menuItem} onPress={changeLanguage}>
-                            <Icon name="language-outline" size={24} color="#ff8c00" />
-                            <Text style={styles.menuText}>{t('translate')}</Text>
-                        </TouchableOpacity>
+                       
                         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Setting')}>
                             <Icon name="settings-outline" size={24} color="#ff8c00" />
                             <Text style={styles.menuText}>{t('settings')}</Text>
@@ -87,6 +78,18 @@ export default function Profile() {
                             <Icon name="log-out-outline" size={24} color="#ff8c00" />
                             <Text style={styles.menuText}>{t('logout')}</Text>
                         </TouchableOpacity>
+                        <View style={styles.menuItem}>
+                              <Icon name="language-outline" size={24} color="#ff8c00" />
+                            <Text style={styles.menuText}>EN</Text>
+                            <ToggleSwitch
+                                isOn={currentLanguage === 'th'}
+                                onToggle={changeLanguage}
+                                offColor="#ccc"
+                                onColor="#4A9B5D"
+                                size="medium"
+                            />
+                            <Text style={styles.switchLabel}>TH</Text>
+                        </View>
                     </View>
                 </>
             ) : (
@@ -103,12 +106,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     headerText: {
-      color: '#4A9B5D',
-      fontWeight: 'bold',
-      fontSize: 35,
-       textAlign: 'center',
-      marginBottom: 30,
-     marginTop: 30,
+        color: '#4A9B5D',
+        fontWeight: 'bold',
+        fontSize: 35,
+        textAlign: 'center',
+        marginBottom: 30,
+        marginTop: 30,
     },
     profileSection: {
         alignItems: 'center',
@@ -146,5 +149,18 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         fontSize: 16,
         color: '#333',
+        marginHorizontal: 5,      
+    },
+    toggleContainer: {
+        flexDirection: 'row',
+
+        paddingVertical: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+    },
+    switchLabel: {
+        fontSize: 16,
+        color: '#333',
+        marginHorizontal: 5, 
     },
 });

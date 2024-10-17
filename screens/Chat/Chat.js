@@ -2,10 +2,17 @@ import axios from 'axios';
 import { useState } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import { OPENAI_API_KEY } from '@env';
+import { useTranslation } from 'react-i18next'; 
 
 const ChatScreen = () => {
+  const { t } = useTranslation(); 
   const [inputText, setInputText] = useState('');
   const [messages, setMessages] = useState([]);
+
+  const chatBot = t('chatBot') || 'Chat Bot';
+  const typeYourMessage = t('typeYourMessage') || 'Type your message...';
+  const sendText = t('send') || 'Send';
+
 
   const callChatGPT = async () => {
     if (!inputText.trim()) return;
@@ -23,7 +30,7 @@ const ChatScreen = () => {
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${OPENAI_API_KEY}`,
+            Authorization: `Bearer ${OPENAI_API_KEY}`, 
           }
         }
       );
@@ -45,7 +52,7 @@ const ChatScreen = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Text style={styles.header}>Chat Bot</Text>
+      <Text style={styles.header}>{chatBot}</Text>
       <FlatList
         data={messages}
         renderItem={renderItem}
@@ -54,13 +61,13 @@ const ChatScreen = () => {
       />
       <View style={styles.inputContainer}>
         <TextInput
-          placeholder="Type your message..."
+          placeholder={typeYourMessage}
           value={inputText}
           onChangeText={setInputText}
           style={styles.input}
         />
         <TouchableOpacity onPress={callChatGPT} style={styles.sendButton}>
-          <Text style={styles.sendButtonText}>Send</Text>
+          <Text style={styles.sendButtonText}>{sendText}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -84,13 +91,13 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
     padding: 15,
     marginVertical: 5,
-    borderRadius: 20, // เพิ่มความโค้งให้กับกรอบ
+    borderRadius: 20, 
   },
   userMessage: {
     alignSelf: 'flex-end',
     backgroundColor: '#0084ff',
     borderTopRightRadius: 0,
-    borderBottomLeftRadius: 20, // เพิ่มความโค้งให้ดูนุ่มนวลขึ้น
+    borderBottomLeftRadius: 20, 
   },
   gptMessage: {
     alignSelf: 'flex-start',

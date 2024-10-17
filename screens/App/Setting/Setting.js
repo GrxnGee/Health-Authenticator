@@ -4,9 +4,11 @@ import { auth, db } from '../../../Firebase';
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
+import { useTranslation } from 'react-i18next'; 
 
 export default function Profile() {
     const navigation = useNavigation();
+    const { t } = useTranslation(); 
 
     const [gender, setGender] = useState('');
     const [showPicker, setShowPicker] = useState(false);
@@ -22,8 +24,8 @@ export default function Profile() {
     const user = auth.currentUser;
 
     const Gender = [
-        { label: 'Male', value: 'Male' },
-        { label: 'Female', value: 'Female' },
+        { label: t('gender'), value: 'Male' },
+        { label: t('gender'), value: 'Female' },
     ];
 
     useEffect(() => {
@@ -33,11 +35,11 @@ export default function Profile() {
                 if (doc.exists()) {
                     setUserInfo(doc.data());
                 } else {
-                    Alert.alert('Error', 'No such document!');
+                    Alert.alert(t('errorFetchingUserData'), t('noDocument'));
                 }
             }, (error) => {
                 console.error("Error fetching user data: ", error);
-                Alert.alert('Error', 'Failed to fetch user data.');
+                Alert.alert(t('errorFetchingUserData'));
             });
 
             return () => unsubscribe();
@@ -53,10 +55,10 @@ export default function Profile() {
             try {
                 const userDocRef = doc(db, "users", user.uid);
                 await updateDoc(userDocRef, userInfo);
-                Alert.alert('Profile updated!');
+                Alert.alert(t('profileUpdated'));
             } catch (error) {
                 console.error("Error updating profile: ", error);
-                Alert.alert('Error', 'Failed to update profile.');
+                Alert.alert(t('errorUpdatingProfile'));
             }
         }
     };
@@ -69,20 +71,20 @@ export default function Profile() {
                     onPress={() => navigation.navigate('Profile')}
                 >
                     <Ionicons name="arrow-back" size={24} color="black" />
-                    <Text style={styles.homeButtonText}>Profile</Text>
+                    <Text style={styles.homeButtonText}>{t('profileSetting')}</Text>
                 </TouchableOpacity>
             </View>
             <View style={styles.headerBG}>
-                <Text style={styles.headerText}>Profile Setting</Text>
+                <Text style={styles.headerText}>{t('profileSetting')}</Text>
             </View>
-            <Text style={styles.label}>Name</Text>
+            <Text style={styles.label}>{t('name')}</Text>
             <TextInput
                 style={styles.input}
                 value={userInfo.name}
                 onChangeText={(text) => handleInputChange('name', text)}
             />
 
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>{t('email')}</Text>
             <TextInput
                 style={styles.input}
                 value={userInfo.email}
@@ -90,7 +92,7 @@ export default function Profile() {
                 keyboardType="email-address"
             />
 
-            <Text style={styles.label}>Birthdate</Text>
+            <Text style={styles.label}>{t('birthdate')}</Text>
             <TextInput
                 style={styles.input}
                 value={userInfo.birthdate}
@@ -98,7 +100,7 @@ export default function Profile() {
                 placeholder="YYYY-MM-DD"
             />
 
-            <Text style={styles.label}>Height (cm)</Text>
+            <Text style={styles.label}>{t('height')}</Text>
             <TextInput
                 style={styles.input}
                 value={userInfo.height}
@@ -106,7 +108,7 @@ export default function Profile() {
                 keyboardType="numeric"
             />
 
-            <Text style={styles.label}>Weight (kg)</Text>
+            <Text style={styles.label}>{t('weight')}</Text>
             <TextInput
                 style={styles.input}
                 value={userInfo.weight}
@@ -114,13 +116,13 @@ export default function Profile() {
                 keyboardType="numeric"
             />
 
-            <Text style={styles.label}>Gender</Text>
+            <Text style={styles.label}>{t('gender')}</Text>
             <TouchableOpacity
                 style={styles.input}
                 onPress={() => setShowPicker(!showPicker)}
             >
                 <Text style={[styles.pickerText, gender ? styles.selectedPickerText : styles.placeholderText]}>
-                    {gender || "Select Gender"}
+                    {gender || t('selectGender')}
                 </Text>
             </TouchableOpacity>
             {showPicker && (
@@ -138,7 +140,7 @@ export default function Profile() {
             )}
 
             <TouchableOpacity style={styles.button} onPress={handleUpdateProfile}>
-                <Text style={styles.buttonText}>Save Changes</Text>
+                <Text style={styles.buttonText}>{t('saveChanges')}</Text>
             </TouchableOpacity>
         </SafeAreaView>
     );

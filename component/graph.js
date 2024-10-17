@@ -9,6 +9,7 @@ const screenWidth = Dimensions.get("window").width;
 export default function ExerciseChart() {
   const [exerciseData, setExerciseData] = useState([]);
   const [labels, setLabels] = useState([]);
+  const [year, setYear] = useState(''); 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,15 +22,14 @@ export default function ExerciseChart() {
           const data = docSnap.data();
           const exercises = data.exercises || [];
 
-
+          
           exercises.sort((a, b) => {
             const dateA = a.day.toDate ? a.day.toDate() : new Date(a.day);
             const dateB = b.day.toDate ? b.day.toDate() : new Date(b.day);
-            return dateA - dateB; 
+            return dateB - dateA; 
           });
 
-
-          const recentExercises = exercises.slice(0, 5);
+          const recentExercises = exercises.slice(0, 5); 
 
           const weights = [];
           const days = [];
@@ -39,12 +39,19 @@ export default function ExerciseChart() {
               const exerciseDay = exercise.day.toDate ? exercise.day.toDate() : new Date(exercise.day);
               weights.push(exercise.weight);
 
-              days.push(exerciseDay.toLocaleDateString('en-US'));
+            
+              const formattedDate = exerciseDay.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+              days.push(formattedDate);
+
+             
+              if (!year) {
+                const exerciseYear = exerciseDay.getFullYear();
+                setYear(exerciseYear);
+              }
             } else {
               console.warn('Missing day or weight in exercise:', exercise);
             }
           });
-
 
           setExerciseData(weights);
           setLabels(days);
@@ -70,38 +77,41 @@ export default function ExerciseChart() {
   return (
     <View style={styles.chartContainer}>
       {exerciseData.length > 0 ? (
-        <LineChart
-          data={{
-            labels: labels,
-            datasets: [
-              {
-                data: exerciseData,
-                strokeWidth: 2, 
+        <>
+         
+          <LineChart
+            data={{
+              labels: labels,
+              datasets: [
+                {
+                  data: exerciseData,
+                  strokeWidth: 2, 
+                },
+              ],
+            }}
+            width={screenWidth - 40}
+            height={220}
+            chartConfig={{
+              backgroundColor: '#4caf50', 
+              backgroundGradientFrom: '#66bb6a',
+              backgroundGradientTo: '#81c784', 
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              style: {
+                borderRadius: 16,
               },
-            ],
-          }}
-          width={screenWidth - 40}
-          height={220}
-          chartConfig={{
-            backgroundColor: '#4caf50', 
-  backgroundGradientFrom: '#66bb6a',
-  backgroundGradientTo: '#81c784', 
-            decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            style: {
-              borderRadius: 16,
-            },
-            propsForDots: {
-              r: '6',
-              strokeWidth: '2',
-               stroke: '#84cc16',
-            },
-            formatYLabel: (yValue) => `${yValue} KG`, 
-          }}
-          bezier
-          style={styles.chart}
-        />
+              propsForDots: {
+                r: '6',
+                strokeWidth: '2',
+                stroke: '#84cc16',
+              },
+              formatYLabel: (yValue) => `${yValue} KG`, 
+            }}
+            bezier
+            style={styles.chart}
+          />
+        </>
       ) : (
         <Text>No exercise data available.</Text>
       )}

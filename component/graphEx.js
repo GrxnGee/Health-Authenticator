@@ -9,6 +9,7 @@ const screenWidth = Dimensions.get("window").width;
 export default function ExChart() {
   const [exerciseData, setExerciseData] = useState([]);
   const [labels, setLabels] = useState([]);
+  const [year, setYear] = useState(''); // State to store the year
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,38 +22,39 @@ export default function ExChart() {
           const data = docSnap.data();
           const exercises = data.exercises || [];
 
-          // Sort exercises by 'day' field in descending order
+          
           exercises.sort((a, b) => {
             const dateA = a.day.toDate ? a.day.toDate() : new Date(a.day);
             const dateB = b.day.toDate ? b.day.toDate() : new Date(b.day);
-            return dateA - dateB; 
+            return dateB - dateA; 
           });
 
-          // Create a map to combine calories for the same day
-          const caloriesByDay = {};
+          const recentExercises = exercises.slice(0, 5); 
 
-          exercises.forEach(exercise => {
-            if (exercise.day && exercise.cal) {
+          const cal = []; 
+          const days = [];
+          let firstExerciseYear = '';
+
+          recentExercises.forEach((exercise, index) => {
+            if (exercise.day && exercise.cal) { 
               const exerciseDay = exercise.day.toDate ? exercise.day.toDate() : new Date(exercise.day);
-              const formattedDay = exerciseDay.toLocaleDateString('en-US');
+              cal.push(exercise.cal); 
+              
+              const formattedDate = exerciseDay.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+              days.push(formattedDate);
 
-              // If the day is already in the map, add the calories to the existing value
-              if (caloriesByDay[formattedDay]) {
-                caloriesByDay[formattedDay] += exercise.cal;
-              } else {
-                caloriesByDay[formattedDay] = exercise.cal;
+             
+              if (index === 0) {
+                firstExerciseYear = exerciseDay.getFullYear();
               }
             } else {
-              console.warn('Missing day or calories in exercise:', exercise);
+              console.warn('Missing day or cal in exercise:', exercise);
             }
           });
 
-          // Convert the map to arrays for chart data
-          const calories = Object.values(caloriesByDay);
-          const days = Object.keys(caloriesByDay);
-
-          setExerciseData(calories); // Set combined calories data
+          setExerciseData(cal); // Set calories data
           setLabels(days);
+          setYear(firstExerciseYear); // Set year outside the loop
           setLoading(false);
         } else {
           console.warn("Document does not exist.");
@@ -80,7 +82,7 @@ export default function ExChart() {
             labels: labels,
             datasets: [
               {
-                data: exerciseData,
+                data: exerciseData, // Display calories data
                 strokeWidth: 2, 
               },
             ],
@@ -102,7 +104,6 @@ export default function ExChart() {
               strokeWidth: '2',
               stroke: '#ffa726',
             },
-          
           }}
           bezier
           style={styles.chart}
