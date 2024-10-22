@@ -22,16 +22,17 @@ export default function Setting() {
                 </TouchableOpacity>
             </View>
             <View style={styles.headerBG}>
-                <Text style={styles.headerText}>{t('settings')}</Text>
+                <Text style={styles.headerText}>{t('privacyCenter')}</Text>
             </View>
 
             <View style={styles.BG}>
                 <TouchableOpacity
                     style={styles.menuItem}
-                    onPress={() => navigation.navigate('ProfileSetting')}
+                    onPress={() => navigation.navigate('')}
                     activeOpacity={0.7}
                 >
-                    <Text style={styles.menuText}>{t('myProfile')}</Text>
+                    <Text style={styles.menuText}>{t('condition')}</Text>
+
                     <Icon
                         name="chevron-forward-outline"
                         size={24}
@@ -43,10 +44,10 @@ export default function Setting() {
             <View style={styles.BG}>
                 <TouchableOpacity
                     style={styles.menuItem}
-                    onPress={() => navigation.navigate('ResetPassword')}
+                    onPress={() => navigation.navigate('')}
                     activeOpacity={0.7}
                 >
-                    <Text style={styles.menuText}>{t('changePassword')}</Text>
+                    <Text style={styles.menuText}>{t('privacyPolicy')}</Text>
                     <Icon
                         name="chevron-forward-outline"
                         size={24}

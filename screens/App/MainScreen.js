@@ -18,8 +18,11 @@ import Food from './Food/Food';
 import Chats from './../Chat/Chat';
 import Scanner from './../Barcode/Scanner';
 import InfoScanner from './../Barcode/InfoScanner';
+import ProfileSetting from './Setting/ProfileSetting';
 import Setting from './Setting/Setting';
-
+import ResetPassword from './Setting/ResetPassword';
+import Privacy from './Setting/Privacy';
+import Help from './Setting/Help';
 
 const Tab = createBottomTabNavigator();
 
@@ -37,7 +40,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
         const isFocused = state.index === index;
 
 
-        if (['Setting', 'Chats', 'InfoScanner', 'Home', 'Exercise', 'BMI', 'TodayEx', 'FoodInfo', 'Food', 'ExerciseCat', 'MealsPlan', 'ExerciseInfo'].includes(route.name)) {
+        if (['Help','ProfileSetting','Privacy', 'Chats', 'InfoScanner', 'Home', 'Exercise', 'BMI', 'TodayEx', 'FoodInfo', 'Food', 'ExerciseCat', 'MealsPlan', 'ExerciseInfo','Setting', 'ResetPassword'].includes(route.name)) {
           return null; 
         }
 
@@ -115,7 +118,11 @@ function MyTabs() {
       <Tab.Screen name="BMI" component={BMIScreen} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="Chats" component={Chats} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="InfoScanner" component={InfoScanner} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="ProfileSetting" component={ProfileSetting} options={{ tabBarButton: () => null }} />
       <Tab.Screen name="Setting" component={Setting} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="ResetPassword" component={ResetPassword} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="Privacy" component={Privacy} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="Help" component={Help} options={{ tabBarButton: () => null }} />
     </Tab.Navigator>
     </I18nextProvider>
   );

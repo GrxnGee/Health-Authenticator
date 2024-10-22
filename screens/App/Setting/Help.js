@@ -22,16 +22,64 @@ export default function Setting() {
                 </TouchableOpacity>
             </View>
             <View style={styles.headerBG}>
-                <Text style={styles.headerText}>{t('settings')}</Text>
+                <Text style={styles.headerText}>{t('helps')}</Text>
             </View>
 
             <View style={styles.BG}>
                 <TouchableOpacity
                     style={styles.menuItem}
-                    onPress={() => navigation.navigate('ProfileSetting')}
+                    onPress={() => navigation.navigate('')}
                     activeOpacity={0.7}
                 >
-                    <Text style={styles.menuText}>{t('myProfile')}</Text>
+                    <Text style={styles.menuText}>{t('aboutUs')}</Text>
+                    <Icon
+                        name="chevron-forward-outline"
+                        size={24}
+                        color="#000000"
+                        style={{ marginLeft: 'auto' }}
+                    />
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.BG}>
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => navigation.navigate('')}
+                    activeOpacity={0.7}
+                >
+                    <Text style={styles.menuText}>{t('contactSupport')}</Text>
+                    <Icon
+                        name="chevron-forward-outline"
+                        size={24}
+                        color="#000000"
+                        style={{ marginLeft: 'auto' }}
+                    />
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.BG}>
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => navigation.navigate('')}
+                    activeOpacity={0.7}
+                >
+                    <Text style={styles.menuText}>{t('termsofService')}</Text>
+                    <Icon
+                        name="chevron-forward-outline"
+                        size={24}
+                        color="#000000"
+                        style={{ marginLeft: 'auto' }}
+                    />
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.BG}>
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => navigation.navigate('')}
+                    activeOpacity={0.7}
+                >
+                    <Text style={styles.menuText}>{t('troubleshooting')}</Text>
                     <Icon
                         name="chevron-forward-outline"
                         size={24}
@@ -43,10 +91,10 @@ export default function Setting() {
             <View style={styles.BG}>
                 <TouchableOpacity
                     style={styles.menuItem}
-                    onPress={() => navigation.navigate('ResetPassword')}
+                    onPress={() => navigation.navigate('')}
                     activeOpacity={0.7}
                 >
-                    <Text style={styles.menuText}>{t('changePassword')}</Text>
+                    <Text style={styles.menuText}>{t('serviceStatus')}</Text>
                     <Icon
                         name="chevron-forward-outline"
                         size={24}
