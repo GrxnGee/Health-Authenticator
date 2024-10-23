@@ -21,6 +21,11 @@ import Chats from './../Chat/Chat';
 import Scanner from './../Barcode/Scanner';
 import InfoScanner from './../Barcode/InfoScanner';
 import Setting from './Setting/Setting';
+import Help from './Setting/Help';
+import Privacy from './Setting/Privacy';
+import ResetPassword from './Setting/ResetPassword';
+import ProfileSetting from './Setting/ProfileSetting';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -37,12 +42,10 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
 
-        // Skip rendering tab bar button for these screens
         if (['Setting', 'Chats', 'InfoScanner', 'BMI', 'TodayEx', 'FoodInfo', 
-             'Scanner', 'ExerciseCat', 'MealsPlan', 'ExerciseInfo'].includes(route.name)) {
+             'Scanner', 'ExerciseCat', 'MealsPlan', 'ExerciseInfo','Help','Privacy','ResetPassword','ProfileSetting'].includes(route.name)) {
           return null;
         }
-
         let iconName;
         switch (route.name) {
           case 'Home':
@@ -101,13 +104,10 @@ function MyTabs() {
         })}
         tabBar={(props) => <CustomTabBar {...props} />}
       >
-        {/* Main tabs that appear in the bottom tab bar */}
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Exercise" component={Exercise} />
         <Tab.Screen name="Food" component={Food} />
         <Tab.Screen name="Profile" component={Profile} />
-
-        {/* Other screens that don't appear in the tab bar */}
         <Tab.Screen name="BMI" component={BMIScreen} options={{ tabBarButton: () => null }} />
         <Tab.Screen name="ExerciseCat" component={ExerciseCat} options={{ tabBarButton: () => null }} />
         <Tab.Screen name="ExerciseInfo" component={ExerciseInfo} options={{ tabBarButton: () => null }} />
@@ -118,6 +118,14 @@ function MyTabs() {
         <Tab.Screen name="Scanner" component={Scanner} options={{ tabBarButton: () => null }} />
         <Tab.Screen name="InfoScanner" component={InfoScanner} options={{ tabBarButton: () => null }} />
         <Tab.Screen name="Setting" component={Setting} options={{ tabBarButton: () => null }} />
+        <Tab.Screen name="Help" component={Help} options={{ tabBarButton: () => null }} />
+        <Tab.Screen name="Privacy" component={Privacy} options={{ tabBarButton: () => null }} />
+        <Tab.Screen name="ResetPassword" component={ResetPassword} options={{ tabBarButton: () => null }} />
+        <Tab.Screen name="ProfileSetting" component={ProfileSetting} options={{ tabBarButton: () => null }} />
+
+
+
+
       </Tab.Navigator>
     </I18nextProvider>
   );
