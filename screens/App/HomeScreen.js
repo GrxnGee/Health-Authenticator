@@ -105,9 +105,7 @@ export default function Home() {
 
   const remainingCalories = userInfo
     ? (
-      ((userInfo.tdee ? parseInt(userInfo.tdee, 10) : 0) -
-        (totalCalories ? parseInt(totalCalories, 10) : 0)) +
-      (todayExercise.cal ? parseInt(todayExercise.cal, 10) : 0)
+      ((userInfo.tdee ? parseInt(userInfo.tdee, 10) : 0) - (totalCalories ? parseInt(totalCalories, 10) : 0)) + (todayExercise.cal ? parseInt(todayExercise.cal, 10) : 0)
     ).toString()
     : '00';
 
@@ -121,8 +119,8 @@ export default function Home() {
           if (doc.exists()) {
             const data = doc.data();
             setUserInfo(data);
-            if (data.weight) {
-              updateBar(data.weight);
+            if (data.bmi) {
+              updateBar(data.bmi);
             }
           } else {
             Alert.alert("Error", "No such document!");
@@ -139,20 +137,24 @@ export default function Home() {
   }, [user]);
 
 
-  const updateBar = (weight) => {
-    let color = "red";
-
-    if (weight >= 100) {
+  const updateBar = (bmi) => {
+    let color = "red"; 
+  
+    if (bmi > 35) {
       color = "red";
-    } else if (weight >= 50 && weight <= 60) {
-      color = "green";
-    } else if (weight >= 40) {
+    } else if (bmi >= 30 && bmi <= 35) {
+      color = "orange";
+    } else if (bmi >= 25 && bmi < 30) {
       color = "yellow";
+    } else if (bmi >= 18 && bmi < 25) {
+      color = "green";
+    } else if (bmi < 18) {
+      color = "blue";
     }
-
+  
     setProgressColor(color);
   };
-
+  
   const getProgressWidth = (weight) => {
     return Math.min((weight / 100) * 100, 100) + "%";
   };
