@@ -7,12 +7,11 @@ import { useTranslation } from 'react-i18next';
 export default function ExerciseInfo() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { Exname, ExnameTH, IEx, IExTH, picUrl, cat } = route.params;
-  const { i18n } = useTranslation();
+  const { Exname, ExnameTH, IEx, IExTH, picUrl, cat, ExMet, id } = route.params;
+  const { t, i18n } = useTranslation();
   const [currentExname, setCurrentExname] = useState(Exname);
   const [currentDescription, setCurrentDescription] = useState(IEx);
   
-  // Mapping categories to Thai
   const categoryTranslations = {
     'Weight Training': 'เวทเทรนนิ่ง',
     'Stretching': 'การยืดกล้ามเนื้อ',
@@ -27,6 +26,16 @@ export default function ExerciseInfo() {
     setCurrentCat(i18n.language === 'th' ? categoryTranslations[cat] || cat : cat);
   }, [i18n.language, Exname, ExnameTH, IEx, IExTH, cat]);
 
+  const handleAddExercise = () => {
+    navigation.navigate('TodayEx', {
+      selectedExercise: {
+        id: id,
+        Exname: currentExname,
+        ExMet: ExMet,
+        cat: cat 
+      }
+    });
+  };
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
@@ -35,7 +44,7 @@ export default function ExerciseInfo() {
             style={styles.backButton}
             onPress={() => navigation.navigate('ExerciseCat', { category: cat })}
           >
-            <Ionicons name="arrow-back" size={24} color="black" />
+            <Ionicons name="arrow-back" size={15} color="black" />
             <Text style={styles.backButtonText}>{currentCat}</Text>
           </TouchableOpacity>
         </View>
@@ -48,6 +57,10 @@ export default function ExerciseInfo() {
           <Image source={{ uri: picUrl }} style={styles.image} />
           <Text style={styles.description}>{currentDescription}</Text>
         </View>
+
+        <TouchableOpacity style={styles.addButton} onPress={handleAddExercise}>
+          <Text style={styles.addButtonText}>{t("Add")}</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -57,6 +70,8 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+    paddingHorizontal: 16,
+    paddingTop: 50,
   },
   container: {
     flex: 1,
@@ -69,11 +84,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   backButton: {
+    borderColor: "#50A966",
+    height: 20,
+    width: 120,
+    borderRadius: 10,
+    borderWidth: 2,
+    marginVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
     flexDirection: 'row',
-    alignItems: 'center',
+    
   },
   backButtonText: {
-    fontSize: 18,
+    fontSize: 12,
     marginLeft: 8,
     fontWeight: 'bold',
   },
@@ -119,5 +142,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     lineHeight: 24,
+  },
+  addButton: {
+    backgroundColor: '#4A9B5D',
+    borderRadius: 10,
+    padding: 15,
+    alignItems: 'center',
+    marginTop: 40,
+    marginBottom: 30,
+  },
+  addButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

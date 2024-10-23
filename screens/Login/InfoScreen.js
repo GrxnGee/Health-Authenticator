@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { db, auth } from '../../Firebase';
 import { doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { Picker } from '@react-native-picker/picker';
+import {  SegmentedButtons, Surface } from 'react-native-paper';
 
 export default function InfoScreen({ route }) {
     const navigation = useNavigation();
@@ -165,18 +166,15 @@ export default function InfoScreen({ route }) {
                     </View>
                     <View style={styles.inputContainer}>
                         <Text style={styles.label}>Gender</Text>
-                        <View style={styles.genderContainer}>
-                            <TouchableOpacity
-                                style={[styles.genderOption, gender === 'Male' && styles.selectedGender]}
-                                onPress={() => handleGenderSelect('Male')}>
-                                <Text style={styles.genderText}>♂️ Male</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.genderOption, gender === 'Female' && styles.selectedGender]}
-                                onPress={() => handleGenderSelect('Female')}>
-                                <Text style={styles.genderText}>♀️ Female</Text>
-                            </TouchableOpacity>
-                        </View>
+                        <SegmentedButtons
+                        value={gender}
+                        onValueChange={setGender}
+                        buttons={[
+                            { value: 'male', label: 'Male' },
+                            { value: 'female', label: 'Female' },
+                        ]}
+                        style={styles.segmentedButton}
+                    />
                     </View>
                     <View style={styles.inputContainer}>
 
@@ -308,5 +306,10 @@ const styles = StyleSheet.create({
     },
     placeholderText: {
         color: '#aaa',
+    },
+    segmentedButton: {
+        marginBottom: 16,
+        
+        
     },
 });

@@ -20,7 +20,7 @@ export default function ExerciseCategories() {
           style={styles.homeButton}
           onPress={() => navigation.navigate('Home')}
         >
-          <Ionicons name="arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back" size={15} color="black" />
           <Text style={styles.homeButtonText}>{t('home')}</Text>
         </TouchableOpacity>
       </View>
@@ -101,12 +101,19 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   homeButton: {
+    borderColor: "#50A966",
+    height: 20,
+    width: 80,
+    borderRadius: 10,
+    borderWidth: 2,
+    marginVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
     flexDirection: 'row',
-    alignItems: 'center',
     
   },
   homeButtonText: {
-    fontSize: 18,
+    fontSize: 12,
     marginLeft: 8,
     fontWeight: 'bold',
   },

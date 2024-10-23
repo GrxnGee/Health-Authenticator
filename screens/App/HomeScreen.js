@@ -26,11 +26,12 @@ export default function Home() {
   const [totalCalories, setTotalCalories] = useState(0);
   const user = auth.currentUser;
   const navigation = useNavigation();
+  const [progressColor, setProgressColor] = useState("red");
 
   useEffect(() => {
     if (user) {
       const today = new Date();
-      today.setHours(0, 0, 0, 0); 
+      today.setHours(0, 0, 0, 0);
       const todayDateString = today.toISOString().split('T')[0];
 
       const userDocRef = doc(db, "users", user.uid);
@@ -99,44 +100,61 @@ export default function Home() {
     }
   }, [user]);
 
-  const remainingCalories = userInfo 
+  const remainingCalories = userInfo
     ? (
-        ((userInfo.tdee ? parseInt(userInfo.tdee, 10) : 0) -
-        (totalCalories ? parseInt(totalCalories, 10) : 0) ) +
-        (todayExercise.cal ? parseInt(todayExercise.cal, 10) : 0)
-      ).toString()
+      ((userInfo.tdee ? parseInt(userInfo.tdee, 10) : 0) -
+        (totalCalories ? parseInt(totalCalories, 10) : 0)) +
+      (todayExercise.cal ? parseInt(todayExercise.cal, 10) : 0)
+    ).toString()
     : '00';
 
-    useEffect(() => {
-      if (user) {
-          const currentDate = new Date().toISOString().split('T')[0];
+  useEffect(() => {
+    if (user) {
+      const userDocRef = doc(db, "users", user.uid);
 
-          const unsubscribe = onSnapshot(doc(db, 'UserFood', user.uid), (doc) => {
-              if (doc.exists()) {
-                  const UserFoodData = doc.data();
-                  const todayFoodData = UserFoodData[currentDate] || [];
+      const unsubscribeUser = onSnapshot(
+        userDocRef,
+        (doc) => {
+          if (doc.exists()) {
+            const data = doc.data();
+            setUserInfo(data);
+            if (data.weight) {
+              updateBar(data.weight);
+            }
+          } else {
+            Alert.alert("Error", "No such document!");
+          }
+        },
+        (error) => {
+          console.error("Error fetching user data: ", error);
+          Alert.alert("Error", "Failed to fetch user data.");
+        }
+      );
 
-                  const totalMealCalories = todayFoodData.reduce((sum, item) => {
-                      if (item.mealCalories) {
-                          return sum + item.mealCalories;
-                      }
-                      return sum;
-                  }, 0);
-
-                  setTotalCalories(totalMealCalories);
-                  setCurrentDateCal(todayFoodData);
-
-              } else {
-                  setCurrentDateCal([]);
-                  setTotalCalories(0);
-              }
-          });
-
-          return () => unsubscribe();
-      }
+      return () => unsubscribeUser();
+    }
   }, [user]);
-  
-   return (
+
+
+  const updateBar = (weight) => {
+    let color = "red";
+
+    if (weight >= 100) {
+      color = "red";
+    } else if (weight >= 50 && weight <= 60) {
+      color = "green";
+    } else if (weight >= 40) {
+      color = "yellow";
+    }
+
+    setProgressColor(color);
+  };
+
+  const getProgressWidth = (weight) => {
+    return Math.min((weight / 100) * 100, 100) + "%";
+  };
+
+  return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         {userInfo ? (
@@ -144,18 +162,20 @@ export default function Home() {
             <View style={styles.userInfoContainer}>
               <Card style={styles.userCard}>
                 <Text style={styles.baseText}>{userInfo.name}</Text>
-                <View style={styles.historyContainer}>
-                  <Text style={styles.historyText}>{t('history')}</Text>
-                </View>
+
                 <Text style={styles.secText}>{userInfo.birthdate}</Text>
                 <Text style={styles.infoText}>{userInfo.weight} KG</Text>
+
                 <View style={styles.barContainer}>
-                  <View style={styles.bar} />
-                  <View style={styles.barGreen} />
-                  <View style={styles.highContainer}>
-                    <Text style={styles.highText}>High</Text>
-                  </View>
-                  <View style={styles.barRed} />
+                  <View
+                    style={[
+                      styles.progressBar,
+                      {
+                        backgroundColor: progressColor,
+                        width: getProgressWidth(userInfo.weight),
+                      },
+                    ]}
+                  />
                 </View>
                 <TouchableOpacity
                   style={styles.button}
@@ -176,7 +196,7 @@ export default function Home() {
               <View style={styles.item}>
                 <Text style={styles.label}>{t('food')}</Text>
               </View>
-              <Text style={styles.value}>{totalCalories}</Text>
+              <Text style={styles.value}>{totalCalories ? totalCalories : '00'}</Text>
               <View style={styles.item}>
                 <Text style={styles.label}>{t('exercise')}</Text>
               </View>
@@ -214,7 +234,7 @@ export default function Home() {
               <Image
                 source={{
                   uri: "https://img1.wsimg.com/isteam/ip/1ee0d8b5-9920-41fc-9085-856fcdd9bb65/iStock-1149241482.jpg",
-                }} 
+                }}
                 style={styles.cardImage}
               />
             </Card>
@@ -226,7 +246,7 @@ export default function Home() {
               <Image
                 source={{
                   uri: "https://www.andilynnfitness.com/cdn/shop/files/14-days-clean-eating-meal-plan-1200-lede-601736337d914519bb5bf8eb83540da1.jpg?v=1713741074&width=713",
-                }} 
+                }}
                 style={styles.cardImage}
               />
             </Card>
@@ -297,8 +317,11 @@ const styles = StyleSheet.create({
     top: 20,
   },
   barContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    height: 20,
+    width: "100%",
+    backgroundColor: "#E0E0E0",
+    borderRadius: 10,
+    overflow: "hidden",
     marginVertical: 15,
   },
   bar: {
@@ -430,7 +453,7 @@ const styles = StyleSheet.create({
     top: 10,
   },
   value: {
-    fontSize: 15, 
+    fontSize: 15,
     fontWeight: "bold",
     marginLeft: 160,
     bottom: 10,
@@ -450,7 +473,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    width: "100%", 
+    width: "100%",
   },
   caloriesText: {
     fontSize: 16,
@@ -504,5 +527,8 @@ const styles = StyleSheet.create({
     color: "#333",
     marginLeft: 10,
   },
-
+  progressBar: {
+    height: "100%",
+    borderRadius: 10,
+  },
 });
