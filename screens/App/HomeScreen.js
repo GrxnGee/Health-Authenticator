@@ -32,7 +32,7 @@ export default function Home() {
     if (user) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const todayDateString = today.toISOString().split('T')[0];
+      const todayDateString = today.toLocaleDateString("en-CA");
 
       const userDocRef = doc(db, "users", user.uid);
       const todayExDocRef = doc(db, "todayex", user.uid);
@@ -64,7 +64,10 @@ export default function Home() {
 
           if (todayExerciseData.length > 0) {
             const totalCalories = todayExerciseData.reduce((sum, ex) => sum + parseInt(ex.cal, 10), 0);
-            const totalHours = todayExerciseData.reduce((sum, ex) => sum + parseFloat(ex.hours), 0);
+            const totalHours = todayExerciseData
+  .reduce((sum, ex) => sum + parseFloat(ex.hours), 0)
+  .toFixed(2);
+
 
             setTodayExercise({ cal: totalCalories.toString(), hours: totalHours.toString() });
           } else {

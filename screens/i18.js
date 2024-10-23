@@ -121,7 +121,9 @@ i18next
           termsofService:"Terms of Service",
           troubleshooting:"Troubleshooting",
           serviceStatus:"Service Status",
-          Scanner:"Scanner"
+          Scanner:"Scanner",
+          MinutesEx:"Minutes",
+          HoursEx:"Hours",
         }
       },
       th: {
@@ -240,7 +242,9 @@ i18next
           termsofService:"เงื่อนไขการบริการ",
           troubleshooting:"การแก้ไขปัญหา",
           serviceStatus:"สถานะการบริการ",
-          Scanner:"สแกน"
+          Scanner:"สแกน",
+          MinutesEx:"นาที",
+          HoursEx:"ชั่วโมง",
 
         }
       }

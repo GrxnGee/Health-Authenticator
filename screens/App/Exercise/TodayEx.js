@@ -1,7 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, StyleSheet, TouchableOpacity, StatusBar, ScrollView, TextInput, Alert } from "react-native";
+import { 
+  View, 
+  Text, 
+  Button, 
+  StyleSheet, 
+  TouchableOpacity, 
+  StatusBar, 
+  ScrollView, 
+  TextInput, 
+  Alert 
+} from "react-native";
 import { auth, db } from "../../../Firebase";
-import { doc, getDoc, updateDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { 
+  doc, 
+  getDoc, 
+  updateDoc, 
+  setDoc, 
+  collection, 
+  query, 
+  where, 
+  getDocs 
+} from "firebase/firestore";
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
@@ -11,6 +30,7 @@ import { useTranslation } from 'react-i18next';
 const TodayEx = () => {
   const { t, i18n } = useTranslation();
   const [hours, setHours] = useState("");
+  const [isMinutes, setIsMinutes] = useState(false);
   const [category, setCategory] = useState(null);
   const [exerciseTypeId, setExerciseTypeId] = useState(null);
   const [exerciseType, setExerciseType] = useState(null);
@@ -27,6 +47,32 @@ const TodayEx = () => {
     A: t("Weight Training"),
     B: t("Stretching"),
     C: t("Cardio")
+  };
+
+  // Convert hours to minutes
+  const hoursToMinutes = (hours) => {
+    const numHours = parseFloat(hours);
+    return isNaN(numHours) ? "" : (numHours * 60).toString();
+  };
+
+  // Convert minutes to hours
+  const minutesToHours = (minutes) => {
+    const numMinutes = parseFloat(minutes);
+    return isNaN(numMinutes) ? "" : (numMinutes / 60).toString();
+  };
+
+  // Handle time input change
+  const handleTimeChange = (value) => {
+    setHours(value);
+  };
+
+  // Toggle between hours and minutes
+  const toggleTimeUnit = () => {
+    if (hours) {
+      const newValue = isMinutes ? minutesToHours(hours) : hoursToMinutes(hours);
+      setHours(newValue);
+    }
+    setIsMinutes(!isMinutes);
   };
 
   useEffect(() => {
@@ -73,9 +119,8 @@ const TodayEx = () => {
       return 0;
     }
     
-    // Calorie calculation formula: Calories = MET * weight (kg) * duration (hours)
     const calories = MET * weightKg * durationHours;
-    return Math.round(calories); // Round to nearest integer
+    return Math.round(calories);
   };
 
   const handleSubmit = async () => {
@@ -84,7 +129,9 @@ const TodayEx = () => {
       return;
     }
 
-    const caloriesBurned = calculateCalories(exerciseType.ExMet, userWeight, hours);
+    // Convert to hours before calculating calories if in minutes mode
+    const hoursValue = isMinutes ? minutesToHours(hours) : hours;
+    const caloriesBurned = calculateCalories(exerciseType.ExMet, userWeight, hoursValue);
     
     if (caloriesBurned === 0) {
       Alert.alert("Error", "Unable to calculate calories. Please check your inputs.");
@@ -100,7 +147,7 @@ const TodayEx = () => {
       if (!docSnap.exists()) {
         await setDoc(todayExDocRef, {
           exercises: [{
-            hours: hours,
+            hours: hoursValue,
             type: exerciseType.Exname,
             cal: caloriesBurned,
             day: currentDate,
@@ -109,7 +156,7 @@ const TodayEx = () => {
       } else {
         let exercises = docSnap.data().exercises || [];
         exercises.push({
-          hours: hours,
+          hours: hoursValue,
           type: exerciseType.Exname,
           cal: caloriesBurned,
           day: currentDate,
@@ -138,14 +185,24 @@ const TodayEx = () => {
       </View>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <Text>{t("entertoday")}</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={setHours}
-          value={hours}
-          placeholder={t("HoursEx")}
-          placeholderTextColor="#aaa"
-          keyboardType="numeric"
-        />
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.timeInput}
+            onChangeText={handleTimeChange}
+            value={hours}
+            placeholder={t(isMinutes ? "MinutesEx" : "HoursEx")}
+            placeholderTextColor="#aaa"
+            keyboardType="numeric"
+          />
+          <TouchableOpacity
+            style={styles.unitButton}
+            onPress={toggleTimeUnit}
+          >
+            <Text style={styles.unitButtonText}>
+              {isMinutes ? t("→Hr") : t("→Min")}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.pickerWrapper}>
           <TouchableOpacity onPress={() => setShowCategoryPicker(!showCategoryPicker)}>
@@ -161,7 +218,7 @@ const TodayEx = () => {
                 setCategory(itemValue);
                 setExerciseTypeId(null);
                 setExerciseType(null);
-                setShowCategoryPicker(false); 
+                setShowCategoryPicker(false);
                 fetchExercisesByCategory(categoryOptions[itemValue]);
               }}
             >
@@ -186,11 +243,15 @@ const TodayEx = () => {
                 onValueChange={(itemValue) => {
                   setExerciseTypeId(itemValue);
                   setExerciseType(exercises.find(exercise => exercise.id === itemValue));
-                  setShowExercisePicker(false); 
+                  setShowExercisePicker(false);
                 }}
               >
                 {exercises.map((exercise) => (
-                  <Picker.Item key={exercise.id} label={i18n.language === 'th' && exercise.ExnameTH ? exercise.ExnameTH : exercise.Exname} value={exercise.id} />
+                  <Picker.Item 
+                    key={exercise.id} 
+                    label={i18n.language === 'th' && exercise.ExnameTH ? exercise.ExnameTH : exercise.Exname} 
+                    value={exercise.id} 
+                  />
                 ))}
               </Picker>
             )}
@@ -212,16 +273,36 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     padding: 20,
   },
-  input: {
-    height: 50,
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginVertical: 12,
     marginHorizontal: 20,
+  },
+  timeInput: {
+    flex: 1,
+    height: 50,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 10,
     padding: 10,
     fontSize: 16,
     backgroundColor: 'white',
+    marginRight: 10,
+  },
+  unitButton: {
+    backgroundColor: '#50A966',
+    padding: 10,
+    borderRadius: 10,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 60,
+  },
+  unitButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   homeButton: {
     borderColor: "#50A966",
@@ -233,13 +314,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexDirection: 'row',
-
-},
-homeButtonText: {
+  },
+  homeButtonText: {
     fontSize: 12,
     marginLeft: 8,
     fontWeight: 'bold',
-},  
+  },
   navHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -272,7 +352,6 @@ homeButtonText: {
     marginBottom: 5,
     color: '#333',
   },
-  
 });
 
 export default TodayEx;
