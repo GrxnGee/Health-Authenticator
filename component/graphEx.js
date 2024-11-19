@@ -24,8 +24,8 @@ export default function ExChart() {
 
           
           exercises.sort((a, b) => {
-            const dateA = a.day.toDate ? a.day.toDate() : new Date(a.day);
-            const dateB = b.day.toDate ? b.day.toDate() : new Date(b.day);
+            const dateB = a.day.toDate ? a.day.toDate() : new Date(a.day);
+            const dateA = b.day.toDate ? b.day.toDate() : new Date(b.day);
             return dateB - dateA; 
           });
 

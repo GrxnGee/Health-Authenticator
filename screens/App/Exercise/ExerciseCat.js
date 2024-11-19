@@ -14,18 +14,18 @@ export default function ExerciseCat() {
   const db = getFirestore();
   const { t, i18n } = useTranslation();
 
-  // Mapping categories to Thai
+  
   const categoryTranslations = {
     'Weight Training': 'เวทเทรนนิ่ง',
     'Stretching': 'การยืดกล้ามเนื้อ',
     'Cardio': 'คาร์ดิโอ'
   };
 
-  // Get the category in the current language
+  
   const localizedCategory = i18n.language === 'th' ? categoryTranslations[category] || category : category;
 
   const fetchExercises = useCallback(async () => {
-    console.log('Fetching exercises. Current language:', i18n.language);
+  
     setLoading(true);
 
     const q = query(collection(db, 'exercise'), where('cat', '==', category));
@@ -49,13 +49,13 @@ export default function ExerciseCat() {
   }, [category, i18n.language]);
 
   useEffect(() => {
-    console.log('Language changed to:', i18n.language);
+    
     fetchExercises();
   }, [i18n.language, fetchExercises]);
 
   useFocusEffect(
     useCallback(() => {
-      console.log('Screen focused');
+     
       fetchExercises();
     }, [fetchExercises])
   );
@@ -90,7 +90,7 @@ export default function ExerciseCat() {
           style={styles.homeButton}
           onPress={() => navigation.navigate('Exercise')}
         >
-          <Ionicons name="arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back" size={15} color="black" />
           <Text style={styles.homeButtonText}>{t('exercise')}</Text>
         </TouchableOpacity>
       </View>
@@ -158,11 +158,19 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   homeButton: {
+    borderColor: "#50A966",
+    height: 20,
+    width: 80,
+    borderRadius: 10,
+    borderWidth: 2,
+    marginVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
     flexDirection: 'row',
-    alignItems: 'center',
+    
   },
   homeButtonText: {
-    fontSize: 18,
+    fontSize: 12,
     marginLeft: 8,
     fontWeight: 'bold',
   },

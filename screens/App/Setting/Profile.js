@@ -92,10 +92,14 @@ export default function Profile() {
                                 <Text style={styles.menuText}>{t('helps')}</Text>
                             </TouchableOpacity>
 
+<<<<<<< HEAD
                             <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
                                 <Icon name="log-out-outline" size={24} color="#ff8c00" />
                                 <Text style={styles.menuText}>{t('logout')}</Text>
                             </TouchableOpacity>
+=======
+
+>>>>>>> 4e26de28d993e34bd156752aa8762d72497c537a
 
                             <View style={styles.menuItem}>
                                 <Icon name="language-outline" size={24} color="#ff8c00" />
@@ -109,6 +113,13 @@ export default function Profile() {
                                 />
                                 <Text style={styles.switchLabel}> TH</Text>
                             </View>
+<<<<<<< HEAD
+=======
+                            <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+                                <Icon name="log-out-outline" size={24} color="#ff8c00" />
+                                <Text style={styles.menuText}>{t('logout')}</Text>
+                            </TouchableOpacity>
+>>>>>>> 4e26de28d993e34bd156752aa8762d72497c537a
                         </View>
                     </>
                 ) : (

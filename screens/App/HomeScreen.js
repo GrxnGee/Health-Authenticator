@@ -32,7 +32,11 @@ export default function Home() {
     if (user) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+<<<<<<< HEAD
       const todayDateString = today.toISOString().split('T')[0];
+=======
+      const todayDateString = today.toLocaleDateString("en-CA");
+>>>>>>> 4e26de28d993e34bd156752aa8762d72497c537a
 
       const userDocRef = doc(db, "users", user.uid);
       const todayExDocRef = doc(db, "todayex", user.uid);
@@ -64,7 +68,10 @@ export default function Home() {
 
           if (todayExerciseData.length > 0) {
             const totalCalories = todayExerciseData.reduce((sum, ex) => sum + parseInt(ex.cal, 10), 0);
-            const totalHours = todayExerciseData.reduce((sum, ex) => sum + parseFloat(ex.hours), 0);
+            const totalHours = todayExerciseData
+  .reduce((sum, ex) => sum + parseFloat(ex.hours), 0)
+  .toFixed(2);
+
 
             setTodayExercise({ cal: totalCalories.toString(), hours: totalHours.toString() });
           } else {
@@ -102,9 +109,13 @@ export default function Home() {
 
   const remainingCalories = userInfo
     ? (
+<<<<<<< HEAD
       ((userInfo.tdee ? parseInt(userInfo.tdee, 10) : 0) -
         (totalCalories ? parseInt(totalCalories, 10) : 0)) +
       (todayExercise.cal ? parseInt(todayExercise.cal, 10) : 0)
+=======
+      ((userInfo.tdee ? parseInt(userInfo.tdee, 10) : 0) - (totalCalories ? parseInt(totalCalories, 10) : 0)) + (todayExercise.cal ? parseInt(todayExercise.cal, 10) : 0)
+>>>>>>> 4e26de28d993e34bd156752aa8762d72497c537a
     ).toString()
     : '00';
 
@@ -118,8 +129,13 @@ export default function Home() {
           if (doc.exists()) {
             const data = doc.data();
             setUserInfo(data);
+<<<<<<< HEAD
             if (data.weight) {
               updateBar(data.weight);
+=======
+            if (data.bmi) {
+              updateBar(data.bmi);
+>>>>>>> 4e26de28d993e34bd156752aa8762d72497c537a
             }
           } else {
             Alert.alert("Error", "No such document!");
@@ -136,6 +152,7 @@ export default function Home() {
   }, [user]);
 
 
+<<<<<<< HEAD
   const updateBar = (weight) => {
     let color = "red";
 
@@ -150,6 +167,26 @@ export default function Home() {
     setProgressColor(color);
   };
 
+=======
+  const updateBar = (bmi) => {
+    let color = "red"; 
+  
+    if (bmi > 35) {
+      color = "red";
+    } else if (bmi >= 30 && bmi <= 35) {
+      color = "orange";
+    } else if (bmi >= 25 && bmi < 30) {
+      color = "yellow";
+    } else if (bmi >= 18 && bmi < 25) {
+      color = "green";
+    } else if (bmi < 18) {
+      color = "blue";
+    }
+  
+    setProgressColor(color);
+  };
+  
+>>>>>>> 4e26de28d993e34bd156752aa8762d72497c537a
   const getProgressWidth = (weight) => {
     return Math.min((weight / 100) * 100, 100) + "%";
   };
@@ -162,9 +199,7 @@ export default function Home() {
             <View style={styles.userInfoContainer}>
               <Card style={styles.userCard}>
                 <Text style={styles.baseText}>{userInfo.name}</Text>
-                <View style={styles.historyContainer}>
-                  <Text style={styles.historyText}>{t('history')}</Text>
-                </View>
+
                 <Text style={styles.secText}>{userInfo.birthdate}</Text>
                 <Text style={styles.infoText}>{userInfo.weight} KG</Text>
 
@@ -198,7 +233,7 @@ export default function Home() {
               <View style={styles.item}>
                 <Text style={styles.label}>{t('food')}</Text>
               </View>
-              <Text style={styles.value}>{totalCalories}</Text>
+              <Text style={styles.value}>{totalCalories ? totalCalories : '00'}</Text>
               <View style={styles.item}>
                 <Text style={styles.label}>{t('exercise')}</Text>
               </View>

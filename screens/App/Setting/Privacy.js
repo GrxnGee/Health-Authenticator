@@ -129,4 +129,8 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         paddingVertical: 10,
     },
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> 4e26de28d993e34bd156752aa8762d72497c537a

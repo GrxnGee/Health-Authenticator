@@ -75,10 +75,10 @@ export default function FoodDetails() {
         <SafeAreaView>
             <ScrollView>
                 <TouchableOpacity
-                    style={styles.FoodButton}
+                    style={styles.homeButton}
                     onPress={() => navigation.navigate('Food')}
                 >
-                    <Ionicons name="arrow-back" size={24} color="black" />
+                    <Ionicons name="arrow-back" size={15} color="black" />
                     <Text style={styles.homeButtonText}>{t('FoodList')}</Text>
                 </TouchableOpacity>
 
@@ -159,11 +159,22 @@ const styles = StyleSheet.create({
         height: 40,
         marginRight: '35%',
     },
-    FoodButton: {
+    homeButton: {
+        borderColor: "#50A966",
+        height: 20,
+        width: 90,
+        borderRadius: 10,
+        borderWidth: 2,
+        marginVertical: 10,
+        alignItems: "center",
+        justifyContent: "center",
         flexDirection: 'row',
-        alignItems: 'center',
-        padding: 10,
-        marginLeft: 10,
+
+    },
+    homeButtonText: {
+        fontSize: 12,
+        marginLeft: 8,
+        fontWeight: 'bold',
     },
     foodName: {
         fontSize: 25,

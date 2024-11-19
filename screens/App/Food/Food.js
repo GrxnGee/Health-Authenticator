@@ -76,7 +76,6 @@ export default function Food() {
     navigation.navigate('FoodInfo', { fname });
   };
 
-  // Function to get the correct category name based on the current language
   const getCategoryName = (category) => {
     return i18n.language === 'th' && category.CnameTH ? category.CnameTH : category.Cname;
   };
@@ -89,8 +88,16 @@ export default function Food() {
             style={styles.homeButton}
             onPress={() => navigation.navigate('Home')}
           >
-            <Ionicons name="arrow-back" size={24} color="black" />
+            <Ionicons name="arrow-back" size={15} color="black" />
             <Text style={styles.homeButtonText}>{t('home')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.MealsButton}
+            onPress={() => navigation.navigate('Scanner')}
+          >
+            <Ionicons name="barcode-outline" size={24} color="#50A966" />
+            <Text style={styles.MealsButtonText}>{t('Scanner')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -146,7 +153,7 @@ export default function Food() {
               <TouchableOpacity 
                 key={category.id} 
                 onPress={() => { 
-                  setSearchText(category.Cname); // Always use Cname for search
+                  setSearchText(category.Cname);
                   Search(); 
                 }}
               >
@@ -192,6 +199,7 @@ export default function Food() {
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   navHeader: {
     flexDirection: 'row',
@@ -200,24 +208,30 @@ const styles = StyleSheet.create({
     paddingVertical: 15,  
     backgroundColor: '#F5F5F5', 
     elevation: 4,
+    justifyContent: 'space-between',
   },
   homeButton: {
+    borderColor: "#50A966",
+    height: 20,
+    width: 80,
+    borderRadius: 10,
+    borderWidth: 2,
+    marginVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
     flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
   },
   homeButtonText: {
-    color: 'black',
-    fontSize: 18,
+    fontSize: 12,
     marginLeft: 8,
     fontWeight: 'bold',
   },
+
   MealsButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
-    marginLeft: 'auto',
     backgroundColor: '#EAF2E3',
     borderRadius: 20, 
     elevation: 2,

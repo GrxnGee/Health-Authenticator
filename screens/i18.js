@@ -120,7 +120,14 @@ i18next
           contactSupport:"Contact Support",
           termsofService:"Terms of Service",
           troubleshooting:"Troubleshooting",
+<<<<<<< HEAD
           serviceStatus:"Service Status"
+=======
+          serviceStatus:"Service Status",
+          Scanner:"Scanner",
+          MinutesEx:"Minutes",
+          HoursEx:"Hours",
+>>>>>>> 4e26de28d993e34bd156752aa8762d72497c537a
         }
       },
       th: {
@@ -238,7 +245,14 @@ i18next
           contactSupport:"ติดต่อฝ่ายสนับสนุน",
           termsofService:"เงื่อนไขการบริการ",
           troubleshooting:"การแก้ไขปัญหา",
+<<<<<<< HEAD
           serviceStatus:"สถานะการบริการ"
+=======
+          serviceStatus:"สถานะการบริการ",
+          Scanner:"สแกน",
+          MinutesEx:"นาที",
+          HoursEx:"ชั่วโมง",
+>>>>>>> 4e26de28d993e34bd156752aa8762d72497c537a
 
         }
       }
